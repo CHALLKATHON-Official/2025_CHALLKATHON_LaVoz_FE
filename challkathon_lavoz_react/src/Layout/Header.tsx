@@ -56,7 +56,9 @@ const Header = () => {
               <DropdownMenuItem onClick={() => navigate("/mypage")}>
                 My Page
               </DropdownMenuItem>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/login")}>
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
