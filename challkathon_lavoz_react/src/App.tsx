@@ -8,6 +8,7 @@ import Note from "./Routes/Note";
 import Wiki from "./Routes/Wiki";
 import Login from "./Routes/Login";
 import Signup from "./Routes/Signup";
+import MyPage from "./Routes/MyPage";
 import Notfound from "./Notfound";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         { element: <Issue />, path: "/issue" },
         { element: <Note />, path: "/note" },
         { element: <Wiki />, path: "/wiki" },
+        { element: <MyPage />, path: "/mypage" },
       ],
     },
     { element: <Login />, path: "/login" },
