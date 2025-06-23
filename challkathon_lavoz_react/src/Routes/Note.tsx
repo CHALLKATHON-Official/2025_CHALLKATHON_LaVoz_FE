@@ -5,8 +5,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Card,
   CardAction,
@@ -26,12 +37,17 @@ import {
   FaBookmark,
   FaRegComment,
 } from "react-icons/fa";
+import { FaCircleArrowUp } from "react-icons/fa6";
+
 import { BiFilterAlt } from "react-icons/bi";
 
 const Note = () => {
   const [liked, setLiked] = useState<boolean>(false);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
+  const [comment, setComment] = useState<string>("");
   const [openComment, setOpenComment] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   return (
     <div>
@@ -48,15 +64,31 @@ const Note = () => {
       <div className="flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="my-4 border-2 border-gray-200 bg-gray-200 text-black hover:bg-gray-300 rounded-md">
+            <Button className="my-4 border-2 border-gray-200 bg-gray-100 text-black hover:bg-gray-300 rounded-md">
               <BiFilterAlt />
-              <span className="ml-1">카테고리 선택</span>
+              <span className="ml-1">
+                {selectedCategory ? selectedCategory : "카테고리 선택"}
+              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>행동</DropdownMenuItem>
-            <DropdownMenuItem>감정</DropdownMenuItem>
-            <DropdownMenuItem>이슈</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSelectedCategory("행동")}>
+              <div className="w-2 h-2 bg-red-300 rounded-full mr-2"></div>
+              <span>행동</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSelectedCategory("감정")}>
+              <div className="w-2 h-2 bg-yellow-300 rounded-full mr-2"></div>
+              <span>감정</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSelectedCategory("이슈")}>
+              <div className="w-2 h-2 bg-blue-300 rounded-full mr-2"></div>
+              <span>이슈</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setSelectedCategory("전체")}>
+              <div className="w-2 h-2 bg-gray-300 rounded-full mr-2"></div>
+              <span>전체</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -73,6 +105,12 @@ const Note = () => {
               <CardDescription>2025.06.23</CardDescription>
             </div>
           </div>
+          <CardAction>
+            <Badge className="flex items-center space-x-0.5 rounded-full bg-red-300">
+              <div className="w-2 h-2 bg-red-200 rounded-full"></div>
+              <span>{selectedCategory}</span>
+            </Badge>
+          </CardAction>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -114,7 +152,10 @@ const Note = () => {
               />
 
               {/* 공유 버튼 */}
-              <IoMdShare className="w-6 h-6 cursor-pointer" />
+              <IoMdShare
+                onClick={() => setOpenDialog(true)}
+                className="w-6 h-6 cursor-pointer"
+              />
             </div>
 
             {/* 북마크 버튼 */}
@@ -135,23 +176,61 @@ const Note = () => {
 
           {/* 댓글 */}
           {openComment && (
-            <div className="flex space-x-3 pt-6 pb-4">
-              <Avatar className="cursor-pointer">
-                <AvatarImage src="https://github.com/yunchan312.png" />
-              </Avatar>
-              <div>
-                <div className="flex items-center space-x-2 mb-1">
-                  <span className="font-semibold text-sm">Yun Chan</span>
-                  <span className="text-xs text-gray-400">5분 전</span>
+            <div className="w-full">
+              <div className="flex space-x-3 py-6">
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src="https://github.com/yunchan312.png" />
+                </Avatar>
+                <div>
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="font-semibold text-sm">Yun Chan</span>
+                    <span className="text-xs text-gray-400">5분 전</span>
+                  </div>
+                  <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
+                    hi
+                  </div>
                 </div>
-                <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
-                  hi
-                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src="https://github.com/yiseoffline.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <Textarea
+                  onChange={(e) => setComment(e.target.value)}
+                  className="w-full"
+                />
+                <FaCircleArrowUp className="w-7 h-7 cursor-pointer" />
               </div>
             </div>
           )}
         </CardFooter>
       </Card>
+
+      {/* 커뮤니티 공유 모달 */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>게시글 공유</DialogTitle>
+            <DialogDescription className="py-4">
+              이 게시글을 커뮤니티에 공유하시겠습니까?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2">
+            <Button variant="secondary" onClick={() => setOpenDialog(false)}>
+              취소
+            </Button>
+            <Button
+              onClick={() => {
+                alert("해당 게시글이 커뮤니티에 공유되었습니다.");
+                setOpenDialog(false);
+              }}
+            >
+              공유하기
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
