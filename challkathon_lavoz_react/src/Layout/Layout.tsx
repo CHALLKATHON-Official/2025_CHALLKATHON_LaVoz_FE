@@ -4,9 +4,9 @@ import Header from "./Header";
 
 const Layout = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between">
+    <div className="min-h-screen flex flex-col justify-between">
       <Header />
-      <div className="w-screen max-w-[1000px]">
+      <div className="w-screen max-w-[1000px] px-4">
         <Outlet />
       </div>
       <Footer />
