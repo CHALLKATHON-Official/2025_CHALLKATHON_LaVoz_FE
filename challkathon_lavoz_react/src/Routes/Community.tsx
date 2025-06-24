@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -21,8 +22,8 @@ const Community = () => {
     fileInputRef.current?.click();
   };
   return (
-    <div className="space-y-4">
-      <div className="text-3xl font-bold pt-10 pb-5 px-2">Community</div>
+    <div className="space-y-4 py-10">
+      <div className="text-3xl font-bold">Community</div>
       {/* 글쓰기 박스 */}
       <div className="border-1 rounded-2xl p-4 space-y-2">
         {!isReadyPost ? (
@@ -66,32 +67,105 @@ const Community = () => {
           </>
         )}
       </div>
+
       {/* 게시글 목록 */}
-      <div>
-        <Card className="w-full cursor-pointer hover:bg-gray-50">
-          <CardHeader>
-            <CardTitle className="text-lg">자폐성 장애 / Autism</CardTitle>
-            <CardDescription>
-              자폐성 장애에 대한 정보와 토론을 위한 공간입니다.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter className="flex space-x-2">
-            <div className="flex items-center space-x-2">
-              <FaRegHeart className="mt-1 text-red-500" />
-              <div className="text-sm text-red-500">1</div>
+      <div className="flex space-x-8">
+        <div className="w-2/3 space-y-4">
+          <Card className="cursor-pointer hover:bg-gray-50">
+            <CardHeader>
+              <CardTitle className="text-lg">자폐성 장애 / Autism</CardTitle>
+              <CardDescription>
+                자폐성 장애에 대한 정보와 토론을 위한 공간입니다.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="flex space-x-2">
+              {/* todo: 좋아요 있으면 보이게 분기처리 */}
+              <div className="flex items-center space-x-2">
+                <FaRegHeart className="mt-1 text-red-500" />
+                <div className="text-sm text-red-500">1</div>
+                <div className="text-gray-500">|</div>
+              </div>
+              {/* todo: 댓글 있으면 보이게 분기처리 */}
+              <div className="flex items-center space-x-2">
+                <FaRegComment className="mt-1 text-cyan-500" />
+                <div className="text-sm text-cyan-500">1</div>
+                <div className="text-gray-500">|</div>
+              </div>
+              <div className="text-gray-500">21분전</div>
               <div className="text-gray-500">|</div>
-            </div>
-            {/* todo: 댓글 있으면 보이게 분기처리 */}
-            <div className="flex items-center space-x-2">
-              <FaRegComment className="mt-1 text-cyan-500" />
-              <div className="text-sm text-cyan-500">1</div>
+              <div className="text-gray-500">yiseonline</div>
+            </CardFooter>
+          </Card>
+          <Card className="cursor-pointer hover:bg-gray-50">
+            <CardHeader>
+              <CardTitle className="text-lg">자폐성 장애 / Autism</CardTitle>
+              <CardDescription>
+                자폐성 장애에 대한 정보와 토론을 위한 공간입니다.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="flex space-x-2">
+              {/* todo: 좋아요 있으면 보이게 분기처리 */}
+              <div className="flex items-center space-x-2">
+                <FaRegHeart className="mt-1 text-red-500" />
+                <div className="text-sm text-red-500">1</div>
+                <div className="text-gray-500">|</div>
+              </div>
+              {/* todo: 댓글 있으면 보이게 분기처리 */}
+              <div className="flex items-center space-x-2">
+                <FaRegComment className="mt-1 text-cyan-500" />
+                <div className="text-sm text-cyan-500">1</div>
+                <div className="text-gray-500">|</div>
+              </div>
+              <div className="text-gray-500">21분전</div>
               <div className="text-gray-500">|</div>
-            </div>
-            <div className="text-gray-500">21분전</div>
-            <div className="text-gray-500">|</div>
-            <div className="text-gray-500">yiseonline</div>
-          </CardFooter>
-        </Card>
+              <div className="text-gray-500">yiseonline</div>
+            </CardFooter>
+          </Card>
+          <Card className="cursor-pointer hover:bg-gray-50">
+            <CardHeader>
+              <CardTitle className="text-lg">자폐성 장애 / Autism</CardTitle>
+              <CardDescription>
+                자폐성 장애에 대한 정보와 토론을 위한 공간입니다.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="flex space-x-2">
+              {/* todo: 좋아요 있으면 보이게 분기처리 */}
+              <div className="flex items-center space-x-2">
+                <FaRegHeart className="mt-1 text-red-500" />
+                <div className="text-sm text-red-500">1</div>
+                <div className="text-gray-500">|</div>
+              </div>
+              {/* todo: 댓글 있으면 보이게 분기처리 */}
+              <div className="flex items-center space-x-2">
+                <FaRegComment className="mt-1 text-cyan-500" />
+                <div className="text-sm text-cyan-500">1</div>
+                <div className="text-gray-500">|</div>
+              </div>
+              <div className="text-gray-500">21분전</div>
+              <div className="text-gray-500">|</div>
+              <div className="text-gray-500">yiseonline</div>
+            </CardFooter>
+          </Card>
+        </div>
+
+        {/* 실시간 인기 글 */}
+        <div className="w-1/3 h-1/3 border-1 rounded-2xl p-4">
+          <div className="font-bold text-lg px-2 pt-2 pb-4">실시간 인기 글</div>
+          <div className="space-y-4">
+            <Card className="shadow-xs cursor-pointer hover:bg-gray-50">
+              <CardContent className="flex items-center justify-between">
+                <div>급해서 여기도 올립니다</div>
+                <div className="text-sm text-gray-400">24분 전</div>
+              </CardContent>
+            </Card>
+            <Card className="shadow-xs cursor-pointer hover:bg-gray-50">
+              <CardContent className="flex items-center justify-between">
+                <div>다시 생각해보니까</div>
+                <div className="text-sm text-gray-400">06/24 20:18</div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
