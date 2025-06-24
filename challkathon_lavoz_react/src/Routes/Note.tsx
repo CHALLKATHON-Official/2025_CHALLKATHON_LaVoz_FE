@@ -27,6 +27,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { IoMdShare } from "react-icons/io";
 import {
   FaSearch,
@@ -58,7 +66,20 @@ const Note = () => {
   };
 
   return (
-    <div>
+    <div className="pt-5 pb-10">
+      {/* 브레드크럼 */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Note</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="w-full relative py-10 items-center">
         {/* 검색 */}
         <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-lg flex items-center space-x-4">

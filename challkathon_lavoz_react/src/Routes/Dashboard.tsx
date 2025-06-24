@@ -14,6 +14,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
   PieChart,
   Pie,
   Cell,
@@ -47,7 +55,19 @@ const Dashboard = () => {
   // 파이 차트 색상
   const COLORS = ["#CEDEF2", "#A0C4F2", "#6DA7F2"];
   return (
-    <div>
+    <div className="pt-5 pb-10">
+      {/* 브레드크럼 */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="text-3xl font-bold pt-10 pb-5">Dashboard</div>
       <div className="space-y-4 py-5">
         <div className="grid grid-cols-2 gap-4">

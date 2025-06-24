@@ -1,5 +1,5 @@
 const Issue = () => {
-  return <div></div>;
+  return <div>issue</div>;
 };
 
 export default Issue;

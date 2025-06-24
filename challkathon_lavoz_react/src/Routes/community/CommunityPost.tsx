@@ -18,6 +18,14 @@ import {
   FaRegComment,
 } from "react-icons/fa";
 import { FaCircleArrowUp } from "react-icons/fa6";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const CommunityPost = () => {
   const { postId } = useParams();
@@ -28,7 +36,23 @@ const CommunityPost = () => {
 
   return (
     <div className="py-10">
-      <div className="text-3xl font-bold pb-10">#{postId} 글 제목</div>
+      {/* 브레드크럼 */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/community">Community</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>글 제목</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="text-3xl font-bold py-10">#{postId} 글 제목</div>
       {/* 게시물 */}
       <Card>
         <CardHeader>
