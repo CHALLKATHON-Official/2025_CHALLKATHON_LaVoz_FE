@@ -44,7 +44,7 @@ const Note = () => {
   const [liked, setLiked] = useState<boolean>(false);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
   const [comment, setComment] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("전체");
   const [selectedWriteCategory, setSelectedWriteCategory] =
     useState<string>("");
   const [writeContent, setWriteContent] = useState<boolean>(false);
