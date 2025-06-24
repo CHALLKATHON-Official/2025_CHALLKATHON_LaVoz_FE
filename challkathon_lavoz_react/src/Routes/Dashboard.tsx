@@ -49,17 +49,17 @@ const Dashboard = () => {
   return (
     <div>
       <div className="text-3xl font-bold pt-10 pb-5">Dashboard</div>
-      <div className="space-y-4 w-screen py-5">
+      <div className="space-y-4 py-5">
         <div className="grid grid-cols-2 gap-4">
           {/* 시간 별 빈번한 행동/감정 */}
-          <Card className="w-full">
+          <Card>
             <CardHeader>
               <CardTitle className="text-lg">
                 시간 별 빈번한 행동/감정
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Table className="table-fixed w-full">
+              <Table className="table-fixed">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[40px]">시간대</TableHead>
@@ -143,7 +143,7 @@ const Dashboard = () => {
         </div>
         {/* 요일 별 이상 횟수 */}
         <div>
-          <Card className="w-full">
+          <Card>
             <CardHeader>
               <CardTitle className="text-lg">요일 별 이상 횟수</CardTitle>
             </CardHeader>
