@@ -92,7 +92,7 @@ const Community = () => {
       </div>
 
       {/* 게시글 목록 */}
-      <div className="flex space-x-8">
+      <div className="flex w-full xl:space-x-8">
         <div className="w-full xl:w-2/3 space-y-4">
           <Card
             onClick={() => navigate("/community/1")}
