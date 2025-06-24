@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { MdOutlineEdit } from "react-icons/md";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,10 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
-
 import { GrAttachment } from "react-icons/gr";
 
 const Community = () => {
+  const navigate = useNavigate();
   const [isReadyPost, setIsReadyPost] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,7 +72,10 @@ const Community = () => {
       {/* 게시글 목록 */}
       <div className="flex space-x-8">
         <div className="w-2/3 space-y-4">
-          <Card className="cursor-pointer hover:bg-gray-50">
+          <Card
+            onClick={() => navigate("/community/1")}
+            className="cursor-pointer hover:bg-gray-50"
+          >
             <CardHeader>
               <CardTitle className="text-lg">자폐성 장애 / Autism</CardTitle>
               <CardDescription>
@@ -98,10 +102,8 @@ const Community = () => {
           </Card>
           <Card className="cursor-pointer hover:bg-gray-50">
             <CardHeader>
-              <CardTitle className="text-lg">자폐성 장애 / Autism</CardTitle>
-              <CardDescription>
-                자폐성 장애에 대한 정보와 토론을 위한 공간입니다.
-              </CardDescription>
+              <CardTitle className="text-lg">이서왔다~~</CardTitle>
+              <CardDescription>1등 안 주면 공학관 불지른다</CardDescription>
             </CardHeader>
             <CardFooter className="flex space-x-2">
               {/* todo: 좋아요 있으면 보이게 분기처리 */}
@@ -123,10 +125,8 @@ const Community = () => {
           </Card>
           <Card className="cursor-pointer hover:bg-gray-50">
             <CardHeader>
-              <CardTitle className="text-lg">자폐성 장애 / Autism</CardTitle>
-              <CardDescription>
-                자폐성 장애에 대한 정보와 토론을 위한 공간입니다.
-              </CardDescription>
+              <CardTitle className="text-lg">미스터구</CardTitle>
+              <CardDescription>꾸꾸까까</CardDescription>
             </CardHeader>
             <CardFooter className="flex space-x-2">
               {/* todo: 좋아요 있으면 보이게 분기처리 */}

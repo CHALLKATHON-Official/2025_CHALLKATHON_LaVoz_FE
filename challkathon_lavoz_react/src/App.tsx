@@ -1,7 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./Layout/Layout";
 import Home from "./Routes/Home";
-import Community from "./Routes/Community";
+import Community from "./Routes/community/Community";
+import CommunityPost from "./Routes/community/CommunityPost";
 import Dashboard from "./Routes/Dashboard";
 import Issue from "./Routes/Issue";
 import Note from "./Routes/Note";
@@ -18,7 +19,13 @@ function App() {
       path: "/",
       children: [
         { element: <Home />, path: "/" },
-        { element: <Community />, path: "/community" },
+        {
+          path: "/community",
+          children: [
+            { element: <Community />, index: true },
+            { element: <CommunityPost />, path: ":postId" },
+          ],
+        },
         { element: <Dashboard />, path: "/dashboard" },
         { element: <Issue />, path: "/issue" },
         { element: <Note />, path: "/note" },
