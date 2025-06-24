@@ -1,6 +1,17 @@
+import Logo from "@/assets/logo.png";
+
 const Footer = () => {
   return (
-    <div className="w-full bg-neutral-200 h-[200px] px-5 py-5">footer</div>
+    <div className="w-full bg-[#30333a] h-[150px] px-5 py-5">
+      <div className="flex items-center justify-center space-x-4 pb-4">
+        <img className="w-10 h-10" src={Logo} />
+        <div className="text-2xl text-white font-bold">Logotism</div>
+      </div>
+      <div className="w-2/3 border-gray-400 border-b mx-auto"></div>
+      <div className="text-gray-200 text-center font-light text-sm pt-4">
+        Copyright © LaVoz. All Rights Reserved
+      </div>
+    </div>
   );
 };
 
