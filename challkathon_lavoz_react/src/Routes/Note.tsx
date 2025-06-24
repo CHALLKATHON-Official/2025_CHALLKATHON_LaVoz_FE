@@ -80,14 +80,15 @@ const Note = () => {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="w-full relative py-10 items-center">
-        {/* 검색 */}
-        <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-lg flex items-center space-x-4">
+      {/* 검색 + 버튼 영역 */}
+      <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
+        {/* 검색창 */}
+        <div className="flex items-center px-8 w-full sm:max-w-lg gap-2">
           <Input className="w-full" />
           <FaSearch className="w-6 h-6 cursor-pointer" />
         </div>
         {/* 버튼 */}
-        <div className="flex flex-row justify-end items-center space-x-4">
+        <div className="flex items-center justify-end gap-2">
           {/* 글쓰기 */}
           <Button
             onClick={() => setWriteContent(true)}
