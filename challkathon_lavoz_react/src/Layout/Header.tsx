@@ -43,8 +43,6 @@ const Header = () => {
           >
             community
           </div>
-
-          {/* Avatar + DropdownMenu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">

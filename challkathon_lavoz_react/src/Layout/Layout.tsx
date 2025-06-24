@@ -6,7 +6,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col justify-between">
       <Header />
-      <div className="w-screen max-w-[1000px] px-4">
+      <div className="w-full px-4">
         <Outlet />
       </div>
       <Footer />
@@ -15,3 +15,17 @@ const Layout = () => {
 };
 
 export default Layout;
+
+// const Layout = () => {
+//   return (
+//     <div className="min-h-screen flex flex-col justify-between">
+//       <Header />
+//       <div className="w-screen max-w-[1000px] px-4">
+//         <Outlet />
+//       </div>
+//       <Footer />
+//     </div>
+//   );
+// };
+
+// export default Layout;
