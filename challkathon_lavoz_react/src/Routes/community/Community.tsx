@@ -48,7 +48,7 @@ const Community = () => {
       {/* 제목 */}
       <div className="text-3xl font-bold py-6">Community</div>
       {/* 글쓰기 박스 */}
-      <div className="border-1 rounded-2xl p-4 space-y-2">
+      <div className="border-1 rounded-2xl p-4 space-y-2 mb-8">
         {!isReadyPost ? (
           // 클릭 전
           <div className="flex items-center space-x-2">
@@ -93,7 +93,7 @@ const Community = () => {
 
       {/* 게시글 목록 */}
       <div className="flex space-x-8">
-        <div className="w-2/3 space-y-4">
+        <div className="w-full xl:w-2/3 space-y-4">
           <Card
             onClick={() => navigate("/community/1")}
             className="cursor-pointer hover:bg-gray-50"
@@ -171,7 +171,7 @@ const Community = () => {
         </div>
 
         {/* 실시간 인기 글 */}
-        <div className="w-1/3 h-1/3 border-1 rounded-2xl p-4">
+        <div className="w-1/3 h-1/3 border-1 rounded-2xl p-4 hidden xl:block">
           <div className="font-bold text-lg px-2 pt-2 pb-4">실시간 인기 글</div>
           <div className="space-y-4">
             <Card className="shadow-xs cursor-pointer hover:bg-gray-50">
