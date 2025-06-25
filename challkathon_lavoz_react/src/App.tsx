@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Layout from "./Layout/Layout";
 import Community from "./Routes/community/Community";
 import CommunityPost from "./Routes/community/CommunityPost";
@@ -37,6 +38,7 @@ function App() {
   return (
     <div>
       <RouterProvider router={router} />
+      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 }

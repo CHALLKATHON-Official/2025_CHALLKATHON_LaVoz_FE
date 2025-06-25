@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import type { KeyboardEvent } from "react";
 import {
   Card,
   CardAction,
@@ -10,9 +12,43 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/assets/logo.png";
+import useAuth from "@/hooks/useAuth";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login, loggedIn } = useAuth();
+
+  const [loginId, setLoginId] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  useEffect(() => {
+    if (loggedIn) {
+      navigate("/");
+    }
+  }, [loggedIn, navigate]);
+
+  const handleLogin = async () => {
+    if (!loginId || !password) {
+      toast.error("아이디와 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+    try {
+      await login({ loginId: loginId, password });
+      toast.success("로그인 되었습니다");
+    } catch {
+      toast.error("로그인에 실패하였습니다.");
+      setLoginId("");
+      setPassword("");
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleLogin();
+    }
+  };
+
   return (
     <div className="flex flex-col justify-center items-center h-screen">
       <div className="flex items-center space-x-2 mb-4">
@@ -35,16 +71,27 @@ const Login = () => {
         <CardContent className="space-y-4">
           <div>
             <p>ID</p>
-            <Input />
+            <Input
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+            />
           </div>
           <div>
             <p>Password</p>
-            <Input />
+            <Input
+              type="password"
+              value={password}
+              onKeyDown={handleKeyDown}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
         </CardContent>
         <CardFooter>
           <div className="w-full">
-            <Button className="cursor-pointer w-full bg-black text-white">
+            <Button
+              className="cursor-pointer w-full bg-black text-white"
+              onClick={handleLogin}
+            >
               Login
             </Button>
           </div>
