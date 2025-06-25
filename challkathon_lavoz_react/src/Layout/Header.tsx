@@ -22,10 +22,7 @@ const Header = () => {
           Logtism
         </div>
         <div className="flex space-x-4 items-center">
-          <div
-            onClick={() => navigate("/note")}
-            className="text cursor-pointer"
-          >
+          <div onClick={() => navigate("/")} className="text cursor-pointer">
             공유노트
           </div>
           <div
