@@ -1,12 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import {
   Drawer,
   DrawerContent,
@@ -18,14 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { BadgeCheckIcon } from "lucide-react";
 import { useState } from "react";
-import {
-  FaBookmark,
-  FaComment,
-  FaHeart,
-  FaRegBookmark,
-  FaRegComment,
-  FaRegHeart,
-} from "react-icons/fa";
 
 const MyPage = () => {
   const [user, setUser] = useState({
