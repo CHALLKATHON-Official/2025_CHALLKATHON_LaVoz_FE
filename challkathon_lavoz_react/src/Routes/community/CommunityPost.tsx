@@ -81,13 +81,13 @@ const CommunityPost = () => {
           </div>
 
           {/* 내용 이미지 */}
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-4">
             {[Logo, Logo, Logo].map((src, index) => (
               <img
                 key={index}
                 src={src}
                 alt={`thumbnail-${index}`}
-                className="w-64 h-64 cursor-pointer hover:opacity-80"
+                className="w-full max-w-xs h-auto object-contain cursor-pointer hover:opacity-80"
                 onClick={() => setOpenImage(src)}
               />
             ))}

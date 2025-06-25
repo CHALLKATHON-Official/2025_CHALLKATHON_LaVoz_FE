@@ -46,7 +46,7 @@ import {
 } from "react-icons/fa";
 import { FaCircleArrowUp } from "react-icons/fa6";
 import { BiFilterAlt } from "react-icons/bi";
-import { MdAttachFile } from "react-icons/md";
+import { GrAttachment } from "react-icons/gr";
 
 const Note = () => {
   const [liked, setLiked] = useState<boolean>(false);
@@ -80,14 +80,15 @@ const Note = () => {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="w-full relative py-10 items-center">
-        {/* 검색 */}
-        <div className="absolute left-1/2 -translate-x-1/2 w-full max-w-lg flex items-center space-x-4">
+      {/* 검색 + 버튼 영역 */}
+      <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
+        {/* 검색창 */}
+        <div className="flex items-center px-8 w-full sm:max-w-lg gap-2">
           <Input className="w-full" />
           <FaSearch className="w-6 h-6 cursor-pointer" />
         </div>
         {/* 버튼 */}
-        <div className="flex flex-row justify-end items-center space-x-4">
+        <div className="flex items-center justify-end gap-2">
           {/* 글쓰기 */}
           <Button
             onClick={() => setWriteContent(true)}
@@ -130,9 +131,9 @@ const Note = () => {
         </div>
       </div>
 
-      <div className="flex space-x-12">
-        <div>
-          {/* 노트 타임라인 */}
+      <div className="flex flex-col-reverse gap-y-12 xl:flex-row xl:space-x-12">
+        {/* 노트 타임라인 */}
+        <div className="w-full space-y-8 xl:w-auto h-[calc(100vh-250px)] overflow-y-auto pr-2">
           <Card className="w-full">
             <CardHeader>
               <div className="flex items-center space-x-4">
@@ -246,39 +247,236 @@ const Note = () => {
               )}
             </CardFooter>
           </Card>
-
-          {/* 커뮤니티 공유 모달 */}
-          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>게시글 공유</DialogTitle>
-                <DialogDescription className="py-4">
-                  이 게시글을 커뮤니티에 공유하시겠습니까?
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => setOpenDialog(false)}
-                >
-                  취소
-                </Button>
-                <Button
-                  onClick={() => {
-                    alert("해당 게시글이 커뮤니티에 공유되었습니다.");
-                    setOpenDialog(false);
-                  }}
-                >
-                  공유하기
-                </Button>
+          <Card className="w-full">
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src="https://github.com/yiseoffline.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <CardTitle className="text-2xl">Seo Yeon</CardTitle>
+                  <CardDescription>2025.06.23</CardDescription>
+                </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <CardAction>
+                <Badge className="flex items-center space-x-0.5 rounded-full bg-red-300">
+                  <div className="w-2 h-2 bg-red-200 rounded-full"></div>
+                  <span>{selectedCategory}</span>
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                自閉症 / Autism <br />
+                <br />
+                의사소통과 상호작용에 대한 이해, 감각지각 및 감각통합능력 등에
+                장애가 있는 자폐성 장애. 유대계 미국인 레오 캐너(Leo Kanner)가
+                발견했다고 해서 캐너 증후군(Kanner Syndrome)이라고도 한다. 다만
+                아스퍼거 증후군과 구분하기 위한 문맥이 아니라면 카너 증후군이란
+                명칭은 잘 쓰이지는 않는다. 보통 고기능 자폐는 IQ 80 이상, 저기능
+                자폐는 IQ 70 이하(지적장애급 지능)에 붙인다. <br />
+                <br />
+                처음 발견한 캐너는 아동 정신 분열증(Schizophrenia, Childhood)로
+                파악해 DSM-I(1952년 미국 정신의학회에서 정리한 정신과 질환 분류
+                목록)에 수록했으며 이후 연구가 계속되어 DSM-III(1980년에
+                정신의학회에서 개정한 버젼)에서는 아동의 발달 장애라고 파악하기
+                시작했다.
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4 items-start">
+              <div className="flex justify-between items-center w-full">
+                <div className="flex items-center space-x-4">
+                  {/* 좋아요 버튼 */}
+                  {liked ? (
+                    <FaHeart
+                      className="w-6 h-6 text-red-400 cursor-pointer"
+                      onClick={() => setLiked(false)}
+                    />
+                  ) : (
+                    <FaRegHeart
+                      className="w-6 h-6 cursor-pointer"
+                      onClick={() => setLiked(true)}
+                    />
+                  )}
+                  {/* 댓글 버튼 */}
+                  <FaRegComment
+                    className="w-6 h-6 cursor-pointer"
+                    onClick={() => setOpenComment((prev) => !prev)}
+                  />
 
+                  {/* 공유 버튼 */}
+                  <IoMdShare
+                    onClick={() => setOpenDialog(true)}
+                    className="w-6 h-6 cursor-pointer"
+                  />
+                </div>
+
+                {/* 북마크 버튼 */}
+                <div>
+                  {bookmarked ? (
+                    <FaBookmark
+                      className="w-6 h-6  cursor-pointer"
+                      onClick={() => setBookmarked(false)}
+                    />
+                  ) : (
+                    <FaRegBookmark
+                      className="w-6 h-6 cursor-pointer"
+                      onClick={() => setBookmarked(true)}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* 댓글 */}
+              {openComment && (
+                <div className="w-full">
+                  <div className="flex space-x-3 py-6">
+                    <Avatar className="cursor-pointer">
+                      <AvatarImage src="https://github.com/yunchan312.png" />
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-semibold text-sm">Yun Chan</span>
+                        <span className="text-xs text-gray-400">5분 전</span>
+                      </div>
+                      <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
+                        hi
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="cursor-pointer">
+                      <AvatarImage src="https://github.com/yiseoffline.png" />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    <Textarea
+                      onChange={(e) => setComment(e.target.value)}
+                      className="w-full"
+                    />
+                    <FaCircleArrowUp className="w-7 h-7 cursor-pointer" />
+                  </div>
+                </div>
+              )}
+            </CardFooter>
+          </Card>
+          <Card className="w-full">
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src="https://github.com/yiseoffline.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <CardTitle className="text-2xl">Seo Yeon</CardTitle>
+                  <CardDescription>2025.06.23</CardDescription>
+                </div>
+              </div>
+              <CardAction>
+                <Badge className="flex items-center space-x-0.5 rounded-full bg-red-300">
+                  <div className="w-2 h-2 bg-red-200 rounded-full"></div>
+                  <span>{selectedCategory}</span>
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                自閉症 / Autism <br />
+                <br />
+                의사소통과 상호작용에 대한 이해, 감각지각 및 감각통합능력 등에
+                장애가 있는 자폐성 장애. 유대계 미국인 레오 캐너(Leo Kanner)가
+                발견했다고 해서 캐너 증후군(Kanner Syndrome)이라고도 한다. 다만
+                아스퍼거 증후군과 구분하기 위한 문맥이 아니라면 카너 증후군이란
+                명칭은 잘 쓰이지는 않는다. 보통 고기능 자폐는 IQ 80 이상, 저기능
+                자폐는 IQ 70 이하(지적장애급 지능)에 붙인다. <br />
+                <br />
+                처음 발견한 캐너는 아동 정신 분열증(Schizophrenia, Childhood)로
+                파악해 DSM-I(1952년 미국 정신의학회에서 정리한 정신과 질환 분류
+                목록)에 수록했으며 이후 연구가 계속되어 DSM-III(1980년에
+                정신의학회에서 개정한 버젼)에서는 아동의 발달 장애라고 파악하기
+                시작했다.
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-4 items-start">
+              <div className="flex justify-between items-center w-full">
+                <div className="flex items-center space-x-4">
+                  {/* 좋아요 버튼 */}
+                  {liked ? (
+                    <FaHeart
+                      className="w-6 h-6 text-red-400 cursor-pointer"
+                      onClick={() => setLiked(false)}
+                    />
+                  ) : (
+                    <FaRegHeart
+                      className="w-6 h-6 cursor-pointer"
+                      onClick={() => setLiked(true)}
+                    />
+                  )}
+                  {/* 댓글 버튼 */}
+                  <FaRegComment
+                    className="w-6 h-6 cursor-pointer"
+                    onClick={() => setOpenComment((prev) => !prev)}
+                  />
+
+                  {/* 공유 버튼 */}
+                  <IoMdShare
+                    onClick={() => setOpenDialog(true)}
+                    className="w-6 h-6 cursor-pointer"
+                  />
+                </div>
+
+                {/* 북마크 버튼 */}
+                <div>
+                  {bookmarked ? (
+                    <FaBookmark
+                      className="w-6 h-6  cursor-pointer"
+                      onClick={() => setBookmarked(false)}
+                    />
+                  ) : (
+                    <FaRegBookmark
+                      className="w-6 h-6 cursor-pointer"
+                      onClick={() => setBookmarked(true)}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* 댓글 */}
+              {openComment && (
+                <div className="w-full">
+                  <div className="flex space-x-3 py-6">
+                    <Avatar className="cursor-pointer">
+                      <AvatarImage src="https://github.com/yunchan312.png" />
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-semibold text-sm">Yun Chan</span>
+                        <span className="text-xs text-gray-400">5분 전</span>
+                      </div>
+                      <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
+                        hi
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="cursor-pointer">
+                      <AvatarImage src="https://github.com/yiseoffline.png" />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    <Textarea
+                      onChange={(e) => setComment(e.target.value)}
+                      className="w-full"
+                    />
+                    <FaCircleArrowUp className="w-7 h-7 cursor-pointer" />
+                  </div>
+                </div>
+              )}
+            </CardFooter>
+          </Card>
+        </div>
         {/* 게시글 작성 */}
         {writeContent && (
-          <div className="w-2/3">
+          <div className="w-full xl:w-2/3">
             <Card>
               <CardHeader>
                 {/* 제목 */}
@@ -331,7 +529,7 @@ const Note = () => {
                     className="border-gray-200 bg-gray-100 hover:bg-gray-200"
                     onClick={handleFileButtonClick}
                   >
-                    <MdAttachFile className="text-black" />
+                    <GrAttachment className="text-black" />
                   </Button>
 
                   {/* 숨겨진 파일 선택 input */}
@@ -368,6 +566,30 @@ const Note = () => {
             </Card>
           </div>
         )}
+        {/* 커뮤니티 공유 모달 */}
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>게시글 공유</DialogTitle>
+              <DialogDescription className="py-4">
+                이 게시글을 커뮤니티에 공유하시겠습니까?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-2">
+              <Button variant="secondary" onClick={() => setOpenDialog(false)}>
+                취소
+              </Button>
+              <Button
+                onClick={() => {
+                  alert("해당 게시글이 커뮤니티에 공유되었습니다.");
+                  setOpenDialog(false);
+                }}
+              >
+                공유하기
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
