@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { isSameDay, parseISO, format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -24,8 +26,27 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import type { Note as NoteType } from "@/types/note";
+
+import { useAllNotes } from "@/api/note.api";
+import { useOrganization } from "@/api/organization.api";
 
 const Dashboard = () => {
+  const [todaysNotes, setTodaysNotes] = useState<NoteType[]>([]);
+  const { data: organization } = useOrganization();
+  const organizationId = organization?.result[0].organizationId;
+  const { data: notes } = useAllNotes(organizationId);
+
+  useEffect(() => {
+    const today = new Date();
+
+    const todays = notes?.filter((note: NoteType) =>
+      isSameDay(parseISO(note.createdAt), today)
+    );
+
+    setTodaysNotes(todays || []);
+  }, [notes]);
+
   // 파이 차트 데이터
   const pieData = [
     { name: "자기전 루틴", value: 8 },
@@ -168,7 +189,7 @@ const Dashboard = () => {
           {/* 오늘의 감정 흐름 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">오늘의 감정 흐름</CardTitle>
+              <CardTitle className="text-lg">오늘의 행동 흐름</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="relative">
@@ -176,60 +197,49 @@ const Dashboard = () => {
                 <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-[2px] bg-gray-200 z-0"></div>
 
                 <div className="space-y-12">
-                  {/* 첫 번째 감정 */}
-                  <div className="flex items-center justify-between relative">
-                    {/* 왼쪽 박스 */}
-                    <div className="w-1/2 pr-6 flex justify-end">
-                      <div className="bg-white p-4 rounded-md shadow w-60">
-                        <div className="flex flex-row items-center space-x-4">
-                          <div className="text-2xl">😄</div>
-                          <div className="text-sm  mb-1">08:00</div>
-                        </div>
-                        <div className="text-sm  mt-1">기분 좋게 등원함</div>
-                      </div>
+                  {todaysNotes.map((note, index) => (
+                    <div
+                      key={note.noteId}
+                      className="flex items-center justify-between relative"
+                    >
+                      {/* 홀수 인덱스: 오른쪽, 짝수 인덱스: 왼쪽 */}
+                      {index % 2 === 0 ? (
+                        <>
+                          <div className="w-1/2 pr-6 flex justify-end">
+                            <div className="bg-white p-4 rounded-md shadow w-60">
+                              <div className="flex flex-row items-center space-x-4">
+                                <div className="text-2xl">📝</div>
+                                <div className="text-sm mb-1">
+                                  {format(parseISO(note.createdAt), "HH:mm")}
+                                </div>
+                              </div>
+                              <div className="text-sm mt-1 break-keep">
+                                {note.content}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-blue-500 rounded-full border-4 border-white z-10"></div>
+                          <div className="w-1/2"></div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-1/2"></div>
+                          <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-blue-500 rounded-full border-4 border-white z-10"></div>
+                          <div className="w-1/2 pl-6 flex justify-start">
+                            <div className="bg-white p-4 rounded-md shadow w-60">
+                              <div className="flex flex-row items-center space-x-4">
+                                <div className="text-2xl">📝</div>
+                                <div className="text-sm mb-1">
+                                  {format(parseISO(note.createdAt), "HH:mm")}
+                                </div>
+                              </div>
+                              <div className="text-sm mt-1">{note.content}</div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    {/* 시점 동그라미 */}
-                    <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-blue-500 rounded-full border-4 border-white z-10"></div>
-                    {/* 오른쪽 빈칸 */}
-                    <div className="w-1/2"></div>
-                  </div>
-
-                  {/* 두 번째 감정 */}
-                  <div className="flex items-center justify-between relative">
-                    {/* 왼쪽 빈칸 */}
-                    <div className="w-1/2"></div>
-                    {/* 시점 동그라미 */}
-                    <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-yellow-400 rounded-full border-4 border-white z-10"></div>
-                    {/* 오른쪽 박스 */}
-                    <div className="w-1/2 pl-6 flex justify-start">
-                      <div className="bg-white p-4 rounded-md shadow w-60">
-                        <div className="flex flex-row items-center space-x-4">
-                          <div className="text-2xl">😫</div>
-                          <div className="text-sm  mb-1">12:30</div>
-                        </div>
-                        <div className="text-sm  mt-1">
-                          낮잠 후 기분이 나빠졌음
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 세번째  */}
-                  <div className="flex items-center justify-between relative">
-                    <div className="w-1/2 pr-6 flex justify-end">
-                      <div className="bg-white p-4 rounded-md shadow w-60">
-                        <div className="flex flex-row items-center space-x-4">
-                          <div className="text-2xl">😵‍💫</div>
-                          <div className="text-sm  mb-1">18:00</div>
-                        </div>
-                        <div className="text-sm  mt-1">
-                          루틴이 깨져서 불안함
-                        </div>
-                      </div>
-                    </div>
-                    <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-red-400 rounded-full border-4 border-white z-10"></div>
-                    <div className="w-1/2"></div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </CardContent>
