@@ -1,4 +1,8 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import type { Comment as CommentType, Note as NoteType } from "@/types/note";
+
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -40,22 +44,174 @@ import {
 import { FaCircleArrowUp } from "react-icons/fa6";
 import { BiFilterAlt } from "react-icons/bi";
 import { GrAttachment } from "react-icons/gr";
+import toast from "react-hot-toast";
+
+import { useOrganization } from "@/api/organization.api";
+import { useCreateNote, useAllNotes } from "@/api/note.api";
+import { usePostComment } from "@/api/comment.api";
+import { usePostBoard } from "@/api/borad.api";
 
 const Note = () => {
-  const [liked, setLiked] = useState<boolean>(false);
-  const [bookmarked, setBookmarked] = useState<boolean>(false);
-  const [comment, setComment] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("전체");
-  const [selectedWriteCategory, setSelectedWriteCategory] =
-    useState<string>("");
+  const navigate = useNavigate();
+  const now = new Date();
+  const formatted = format(now, "yyyy-MM-dd HH:mm");
+
+  const [likedNotes, setLikedNotes] = useState<Set<number>>(new Set());
+  const [bookmarkedNotes, setBookmarkedNotes] = useState<Set<number>>(
+    new Set()
+  );
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
   const [writeContent, setWriteContent] = useState<boolean>(false);
+  const [contentTitle, setContentTitle] = useState<string>("");
+  const [contentText, setContentText] = useState<string>("");
+  const [contentEmotion, setContentEmotion] = useState<string>("");
+  const [selectedEmotion, setSelectedEmotion] = useState<string>("전체");
+  const [shareNote, setShareNote] = useState<NoteType | null>(null);
+  const [commentMap, setCommentMap] = useState<{ [key: number]: string }>({});
   const [openComment, setOpenComment] = useState<boolean>(false);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const { data: organization } = useOrganization();
+  const organizationId = organization?.result[0].organizationId;
+
+  const { mutate: createNote } = useCreateNote();
+  const { mutate: postComment } = usePostComment();
+  const { mutate: postBoard } = usePostBoard();
+  const { data: notes, refetch } = useAllNotes(organizationId);
 
   const handleFileButtonClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const filteredNotes = notes
+    ?.filter((note: NoteType) =>
+      selectedEmotion === "전체" || !selectedEmotion
+        ? true
+        : note.emotion === selectedEmotion
+    )
+    .filter(
+      (note: NoteType) =>
+        note.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+  // 검색
+  const triggerSearch = () => {
+    setSearchText(searchInput);
+  };
+
+  // 좋아요 토글
+  const toggleLike = (noteId: number) => {
+    setLikedNotes((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(noteId)) {
+        updated.delete(noteId);
+      } else {
+        updated.add(noteId);
+      }
+      return updated;
+    });
+  };
+
+  // 북마크 토글
+  const toggleBookmark = (noteId: number) => {
+    setBookmarkedNotes((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(noteId)) {
+        updated.delete(noteId);
+      } else {
+        updated.add(noteId);
+      }
+      return updated;
+    });
+  };
+
+  // 노트 작성
+  const handleCreateNote = async () => {
+    if (!contentTitle.trim() || !contentText.trim()) {
+      toast.error("제목과 내용을 모두 입력해주세요.");
+      return;
+    }
+
+    if (!contentEmotion) {
+      toast.error("감정과 카테고리를 선택해주세요.");
+      return;
+    }
+
+    if (!organizationId) {
+      toast.error("조직 정보를 불러오지 못했습니다.");
+      return;
+    }
+
+    try {
+      await createNote({
+        organizationId,
+        title: contentTitle,
+        content: contentText,
+        emotion: contentEmotion,
+        time: formatted,
+      });
+
+      toast.success("게시글이 등록되었습니다.");
+      refetch(); // 최신 목록 갱신
+      setWriteContent(false); // 글쓰기 창 닫기
+      setContentTitle("");
+      setContentText("");
+      setContentEmotion("");
+    } catch (error) {
+      console.error("게시글 등록 오류:", error);
+      toast.error("게시글 등록 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleCommentChange = (noteId: number, value: string) => {
+    setCommentMap((prev) => ({
+      ...prev,
+      [noteId]: value,
+    }));
+  };
+
+  // 댓글 작성
+  const handlePostComment = async (noteId: number) => {
+    const currentComment = commentMap[noteId];
+    if (!currentComment?.trim()) {
+      toast.error("댓글 내용을 입력해주세요.");
+      return;
+    }
+
+    try {
+      await postComment({
+        noteId,
+        content: currentComment,
+      });
+      toast.success("댓글이 등록되었습니다.");
+      navigate("/community");
+      refetch(); // 노트 목록 새로고침
+      // 댓글 초기화
+      setCommentMap((prev) => ({ ...prev, [noteId]: "" }));
+    } catch {
+      toast.error("댓글 등록 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 커뮤니티에 게시글 공유
+  const handlePostBoard = async () => {
+    if (!shareNote) return;
+
+    try {
+      await postBoard({
+        title: shareNote.title,
+        content: shareNote.content,
+      });
+      toast.success("해당 게시글이 커뮤니티에 공유되었습니다.");
+      refetch();
+    } catch {
+      toast.error("커뮤니티 공유 중 오류가 발생했습니다.");
+    } finally {
+      setShareNote(null); // 상태 초기화
+    }
   };
 
   return (
@@ -66,8 +222,21 @@ const Note = () => {
       <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
         {/* 검색창 */}
         <div className="flex items-center px-8 w-full sm:max-w-lg gap-2">
-          <Input className="w-full" />
-          <FaSearch className="w-6 h-6 cursor-pointer" />
+          <Input
+            className="w-full"
+            placeholder="제목이나 내용을 검색하세요"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                triggerSearch();
+              }
+            }}
+          />
+          <FaSearch
+            className="w-6 h-6 cursor-pointer"
+            onClick={triggerSearch}
+          />
         </div>
         {/* 버튼 */}
         <div className="flex items-center justify-end gap-2">
@@ -85,25 +254,25 @@ const Note = () => {
                 <Button className="my-4 border-2 border-gray-200 bg-gray-100 text-black hover:bg-gray-300 rounded-md">
                   <BiFilterAlt />
                   <span className="ml-1">
-                    {selectedCategory ? selectedCategory : "카테고리 선택"}
+                    {selectedEmotion ? selectedEmotion : "카테고리 선택"}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSelectedCategory("행동")}>
+                <DropdownMenuItem onClick={() => setSelectedEmotion("행동")}>
                   <div className="w-2 h-2 bg-red-300 rounded-full mr-2"></div>
                   <span>행동</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedCategory("감정")}>
+                <DropdownMenuItem onClick={() => setSelectedEmotion("감정")}>
                   <div className="w-2 h-2 bg-yellow-300 rounded-full mr-2"></div>
                   <span>감정</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSelectedCategory("이슈")}>
+                <DropdownMenuItem onClick={() => setSelectedEmotion("이슈")}>
                   <div className="w-2 h-2 bg-blue-300 rounded-full mr-2"></div>
                   <span>이슈</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setSelectedCategory("전체")}>
+                <DropdownMenuItem onClick={() => setSelectedEmotion("전체")}>
                   <div className="w-2 h-2 bg-gray-300 rounded-full mr-2"></div>
                   <span>전체</span>
                 </DropdownMenuItem>
@@ -113,357 +282,160 @@ const Note = () => {
         </div>
       </div>
 
-      <div className="flex flex-col-reverse gap-y-12 xl:flex-row xl:space-x-12">
+      <div className="flex flex-col-reverse gap-y-12 xl:flex-row xl:space-x-6">
         {/* 노트 타임라인 */}
-        <div className="w-full space-y-8 xl:w-auto h-[calc(100vh-250px)] overflow-y-auto pr-2">
-          <Card className="w-full">
-            <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="cursor-pointer">
-                  <AvatarImage src="https://github.com/yiseoffline.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <CardTitle className="text-2xl">Seo Yeon</CardTitle>
-                  <CardDescription>2025.06.23</CardDescription>
-                </div>
-              </div>
-              <CardAction>
-                <Badge className="flex items-center space-x-0.5 rounded-full bg-red-300">
-                  <div className="w-2 h-2 bg-red-200 rounded-full"></div>
-                  <span>{selectedCategory}</span>
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                自閉症 / Autism <br />
-                <br />
-                의사소통과 상호작용에 대한 이해, 감각지각 및 감각통합능력 등에
-                장애가 있는 자폐성 장애. 유대계 미국인 레오 캐너(Leo Kanner)가
-                발견했다고 해서 캐너 증후군(Kanner Syndrome)이라고도 한다. 다만
-                아스퍼거 증후군과 구분하기 위한 문맥이 아니라면 카너 증후군이란
-                명칭은 잘 쓰이지는 않는다. 보통 고기능 자폐는 IQ 80 이상, 저기능
-                자폐는 IQ 70 이하(지적장애급 지능)에 붙인다. <br />
-                <br />
-                처음 발견한 캐너는 아동 정신 분열증(Schizophrenia, Childhood)로
-                파악해 DSM-I(1952년 미국 정신의학회에서 정리한 정신과 질환 분류
-                목록)에 수록했으며 이후 연구가 계속되어 DSM-III(1980년에
-                정신의학회에서 개정한 버젼)에서는 아동의 발달 장애라고 파악하기
-                시작했다.
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4 items-start">
-              <div className="flex justify-between items-center w-full">
-                <div className="flex items-center space-x-4">
-                  {/* 좋아요 버튼 */}
-                  {liked ? (
-                    <FaHeart
-                      className="w-6 h-6 text-red-400 cursor-pointer"
-                      onClick={() => setLiked(false)}
-                    />
-                  ) : (
-                    <FaRegHeart
-                      className="w-6 h-6 cursor-pointer"
-                      onClick={() => setLiked(true)}
-                    />
-                  )}
-                  {/* 댓글 버튼 */}
-                  <FaRegComment
-                    className="w-6 h-6 cursor-pointer"
-                    onClick={() => setOpenComment((prev) => !prev)}
-                  />
-
-                  {/* 공유 버튼 */}
-                  <IoMdShare
-                    onClick={() => setOpenDialog(true)}
-                    className="w-6 h-6 cursor-pointer"
-                  />
-                </div>
-
-                {/* 북마크 버튼 */}
-                <div>
-                  {bookmarked ? (
-                    <FaBookmark
-                      className="w-6 h-6  cursor-pointer"
-                      onClick={() => setBookmarked(false)}
-                    />
-                  ) : (
-                    <FaRegBookmark
-                      className="w-6 h-6 cursor-pointer"
-                      onClick={() => setBookmarked(true)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* 댓글 */}
-              {openComment && (
-                <div className="w-full">
-                  <div className="flex space-x-3 py-6">
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage src="https://github.com/yunchan312.png" />
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-sm">Yun Chan</span>
-                        <span className="text-xs text-gray-400">5분 전</span>
-                      </div>
-                      <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
-                        hi
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
+        <div className="w-full xl:flex-1 h-[calc(100vh-250px)] overflow-y-auto pr-2 space-y-8">
+          {filteredNotes
+            ?.slice()
+            .reverse()
+            .map((note: NoteType) => (
+              <Card key={note.noteId} className="w-full">
+                <CardHeader>
+                  <div className="flex items-center space-x-4">
                     <Avatar className="cursor-pointer">
                       <AvatarImage src="https://github.com/yiseoffline.png" />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
-                    <Textarea
-                      onChange={(e) => setComment(e.target.value)}
-                      className="w-full"
-                    />
-                    <FaCircleArrowUp className="w-7 h-7 cursor-pointer" />
-                  </div>
-                </div>
-              )}
-            </CardFooter>
-          </Card>
-          <Card className="w-full">
-            <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="cursor-pointer">
-                  <AvatarImage src="https://github.com/yiseoffline.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <CardTitle className="text-2xl">Seo Yeon</CardTitle>
-                  <CardDescription>2025.06.23</CardDescription>
-                </div>
-              </div>
-              <CardAction>
-                <Badge className="flex items-center space-x-0.5 rounded-full bg-red-300">
-                  <div className="w-2 h-2 bg-red-200 rounded-full"></div>
-                  <span>{selectedCategory}</span>
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                自閉症 / Autism <br />
-                <br />
-                의사소통과 상호작용에 대한 이해, 감각지각 및 감각통합능력 등에
-                장애가 있는 자폐성 장애. 유대계 미국인 레오 캐너(Leo Kanner)가
-                발견했다고 해서 캐너 증후군(Kanner Syndrome)이라고도 한다. 다만
-                아스퍼거 증후군과 구분하기 위한 문맥이 아니라면 카너 증후군이란
-                명칭은 잘 쓰이지는 않는다. 보통 고기능 자폐는 IQ 80 이상, 저기능
-                자폐는 IQ 70 이하(지적장애급 지능)에 붙인다. <br />
-                <br />
-                처음 발견한 캐너는 아동 정신 분열증(Schizophrenia, Childhood)로
-                파악해 DSM-I(1952년 미국 정신의학회에서 정리한 정신과 질환 분류
-                목록)에 수록했으며 이후 연구가 계속되어 DSM-III(1980년에
-                정신의학회에서 개정한 버젼)에서는 아동의 발달 장애라고 파악하기
-                시작했다.
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4 items-start">
-              <div className="flex justify-between items-center w-full">
-                <div className="flex items-center space-x-4">
-                  {/* 좋아요 버튼 */}
-                  {liked ? (
-                    <FaHeart
-                      className="w-6 h-6 text-red-400 cursor-pointer"
-                      onClick={() => setLiked(false)}
-                    />
-                  ) : (
-                    <FaRegHeart
-                      className="w-6 h-6 cursor-pointer"
-                      onClick={() => setLiked(true)}
-                    />
-                  )}
-                  {/* 댓글 버튼 */}
-                  <FaRegComment
-                    className="w-6 h-6 cursor-pointer"
-                    onClick={() => setOpenComment((prev) => !prev)}
-                  />
-
-                  {/* 공유 버튼 */}
-                  <IoMdShare
-                    onClick={() => setOpenDialog(true)}
-                    className="w-6 h-6 cursor-pointer"
-                  />
-                </div>
-
-                {/* 북마크 버튼 */}
-                <div>
-                  {bookmarked ? (
-                    <FaBookmark
-                      className="w-6 h-6  cursor-pointer"
-                      onClick={() => setBookmarked(false)}
-                    />
-                  ) : (
-                    <FaRegBookmark
-                      className="w-6 h-6 cursor-pointer"
-                      onClick={() => setBookmarked(true)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* 댓글 */}
-              {openComment && (
-                <div className="w-full">
-                  <div className="flex space-x-3 py-6">
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage src="https://github.com/yunchan312.png" />
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-sm">Yun Chan</span>
-                        <span className="text-xs text-gray-400">5분 전</span>
-                      </div>
-                      <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
-                        hi
-                      </div>
+                    <div className="flex flex-col">
+                      <CardTitle className="text-2xl">
+                        {note.memberName}
+                      </CardTitle>
+                      <CardDescription>
+                        {format(note.createdAt, "yyyy-MM-dd")}
+                      </CardDescription>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage src="https://github.com/yiseoffline.png" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <Textarea
-                      onChange={(e) => setComment(e.target.value)}
-                      className="w-full"
-                    />
-                    <FaCircleArrowUp className="w-7 h-7 cursor-pointer" />
-                  </div>
-                </div>
-              )}
-            </CardFooter>
-          </Card>
-          <Card className="w-full">
-            <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="cursor-pointer">
-                  <AvatarImage src="https://github.com/yiseoffline.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <CardTitle className="text-2xl">Seo Yeon</CardTitle>
-                  <CardDescription>2025.06.23</CardDescription>
-                </div>
-              </div>
-              <CardAction>
-                <Badge className="flex items-center space-x-0.5 rounded-full bg-red-300">
-                  <div className="w-2 h-2 bg-red-200 rounded-full"></div>
-                  <span>{selectedCategory}</span>
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                自閉症 / Autism <br />
-                <br />
-                의사소통과 상호작용에 대한 이해, 감각지각 및 감각통합능력 등에
-                장애가 있는 자폐성 장애. 유대계 미국인 레오 캐너(Leo Kanner)가
-                발견했다고 해서 캐너 증후군(Kanner Syndrome)이라고도 한다. 다만
-                아스퍼거 증후군과 구분하기 위한 문맥이 아니라면 카너 증후군이란
-                명칭은 잘 쓰이지는 않는다. 보통 고기능 자폐는 IQ 80 이상, 저기능
-                자폐는 IQ 70 이하(지적장애급 지능)에 붙인다. <br />
-                <br />
-                처음 발견한 캐너는 아동 정신 분열증(Schizophrenia, Childhood)로
-                파악해 DSM-I(1952년 미국 정신의학회에서 정리한 정신과 질환 분류
-                목록)에 수록했으며 이후 연구가 계속되어 DSM-III(1980년에
-                정신의학회에서 개정한 버젼)에서는 아동의 발달 장애라고 파악하기
-                시작했다.
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4 items-start">
-              <div className="flex justify-between items-center w-full">
-                <div className="flex items-center space-x-4">
-                  {/* 좋아요 버튼 */}
-                  {liked ? (
-                    <FaHeart
-                      className="w-6 h-6 text-red-400 cursor-pointer"
-                      onClick={() => setLiked(false)}
-                    />
-                  ) : (
-                    <FaRegHeart
-                      className="w-6 h-6 cursor-pointer"
-                      onClick={() => setLiked(true)}
-                    />
-                  )}
-                  {/* 댓글 버튼 */}
-                  <FaRegComment
-                    className="w-6 h-6 cursor-pointer"
-                    onClick={() => setOpenComment((prev) => !prev)}
-                  />
+                  <CardAction>
+                    <Badge
+                      className={`flex items-center space-x-0.5 rounded-full ${
+                        note.emotion === "행동"
+                          ? "bg-red-300"
+                          : note.emotion === "감정"
+                            ? "bg-yellow-300"
+                            : note.emotion === "이슈"
+                              ? "bg-blue-300"
+                              : "bg-gray-300"
+                      }`}
+                    >
+                      <div className={`w-2 h-2 rounded-full bg-white`}></div>
+                      <span className="text-gray-700">{note.emotion}</span>
+                    </Badge>
+                  </CardAction>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="font-bold text-lg">{note.title}</div>
+                  <div>{note.content}</div>
+                </CardContent>
+                <CardFooter className="flex flex-col space-y-4 items-start">
+                  <div className="flex justify-between items-center w-full">
+                    <div className="flex items-center space-x-4">
+                      {/* 좋아요 버튼 */}
+                      {likedNotes.has(note.noteId) ? (
+                        <FaHeart
+                          className="w-6 h-6 text-red-400 cursor-pointer"
+                          onClick={() => toggleLike(note.noteId)}
+                        />
+                      ) : (
+                        <FaRegHeart
+                          className="w-6 h-6 cursor-pointer"
+                          onClick={() => toggleLike(note.noteId)}
+                        />
+                      )}
+                      {/* 댓글 버튼 */}
+                      <FaRegComment
+                        className="w-6 h-6 cursor-pointer"
+                        onClick={() => setOpenComment((prev) => !prev)}
+                      />
 
-                  {/* 공유 버튼 */}
-                  <IoMdShare
-                    onClick={() => setOpenDialog(true)}
-                    className="w-6 h-6 cursor-pointer"
-                  />
-                </div>
+                      {/* 공유 버튼 */}
+                      <IoMdShare
+                        onClick={() => {
+                          setShareNote(note);
+                          setOpenDialog(true);
+                        }}
+                        className="w-6 h-6 cursor-pointer"
+                      />
+                    </div>
 
-                {/* 북마크 버튼 */}
-                <div>
-                  {bookmarked ? (
-                    <FaBookmark
-                      className="w-6 h-6  cursor-pointer"
-                      onClick={() => setBookmarked(false)}
-                    />
-                  ) : (
-                    <FaRegBookmark
-                      className="w-6 h-6 cursor-pointer"
-                      onClick={() => setBookmarked(true)}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* 댓글 */}
-              {openComment && (
-                <div className="w-full">
-                  <div className="flex space-x-3 py-6">
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage src="https://github.com/yunchan312.png" />
-                    </Avatar>
+                    {/* 북마크 버튼 */}
                     <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-sm">Yun Chan</span>
-                        <span className="text-xs text-gray-400">5분 전</span>
-                      </div>
-                      <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
-                        hi
-                      </div>
+                      {bookmarkedNotes.has(note.noteId) ? (
+                        <FaBookmark
+                          className="w-6 h-6 cursor-pointer"
+                          onClick={() => toggleBookmark(note.noteId)}
+                        />
+                      ) : (
+                        <FaRegBookmark
+                          className="w-6 h-6 cursor-pointer"
+                          onClick={() => toggleBookmark(note.noteId)}
+                        />
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage src="https://github.com/yiseoffline.png" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <Textarea
-                      onChange={(e) => setComment(e.target.value)}
-                      className="w-full"
-                    />
-                    <FaCircleArrowUp className="w-7 h-7 cursor-pointer" />
-                  </div>
-                </div>
-              )}
-            </CardFooter>
-          </Card>
+
+                  {/* 댓글 */}
+                  {openComment && (
+                    <div className="w-full">
+                      {/* 댓글 목록 */}
+                      {note.comments.map((comment: CommentType) => (
+                        <div
+                          key={comment.commentId}
+                          className="flex space-x-3 py-2"
+                        >
+                          <Avatar className="cursor-pointer">
+                            <AvatarImage src="https://github.com/yunchan312.png" />
+                          </Avatar>
+                          <div>
+                            <div className="flex items-center space-x-2 mb-1">
+                              <span className="font-semibold text-sm">
+                                {comment.memberName}
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                {format(new Date(comment.createdAt), "HH:mm")}
+                              </span>
+                            </div>
+                            <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
+                              {comment.content}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {/* 댓글 작성 */}
+                      <div className="flex items-center space-x-3 pt-4">
+                        <Avatar className="cursor-pointer">
+                          <AvatarImage src="https://github.com/yiseoffline.png" />
+                          <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                        <Textarea
+                          value={commentMap[note.noteId] || ""}
+                          onChange={(e) =>
+                            handleCommentChange(note.noteId, e.target.value)
+                          }
+                          className="w-full"
+                        />
+                        <FaCircleArrowUp
+                          onClick={() => handlePostComment(note.noteId)}
+                          className="w-7 h-7 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardFooter>
+              </Card>
+            ))}
         </div>
         {/* 게시글 작성 */}
         {writeContent && (
-          <div className="w-full xl:w-2/3">
+          <div className="w-full xl:w-1/3">
             <Card>
               <CardHeader>
                 {/* 제목 */}
                 <CardTitle>
-                  <Input placeholder="글 제목" />
+                  <Input
+                    value={contentTitle}
+                    onChange={(e) => setContentTitle(e.target.value)}
+                    placeholder="글 제목"
+                  />
                 </CardTitle>
                 <div className="flex items-center space-x-2 mt-4">
                   {/* 카테고리 선택 드롭다운 */}
@@ -472,34 +444,32 @@ const Note = () => {
                       <Button className="border border-gray-200 bg-gray-100 text-black hover:bg-gray-200 rounded-md">
                         <BiFilterAlt />
                         <span className="ml-1">
-                          {selectedWriteCategory
-                            ? selectedWriteCategory
-                            : "카테고리 선택"}
+                          {contentEmotion ? contentEmotion : "카테고리 선택"}
                         </span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => setSelectedWriteCategory("행동")}
+                        onClick={() => setContentEmotion("행동")}
                       >
                         <div className="w-2 h-2 bg-red-300 rounded-full mr-2"></div>
                         <span>행동</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => setSelectedWriteCategory("감정")}
+                        onClick={() => setContentEmotion("감정")}
                       >
                         <div className="w-2 h-2 bg-yellow-300 rounded-full mr-2"></div>
                         <span>감정</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => setSelectedWriteCategory("이슈")}
+                        onClick={() => setContentEmotion("이슈")}
                       >
                         <div className="w-2 h-2 bg-blue-300 rounded-full mr-2"></div>
                         <span>이슈</span>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={() => setSelectedWriteCategory("전체")}
+                        onClick={() => setContentEmotion("전체")}
                       >
                         <div className="w-2 h-2 bg-gray-300 rounded-full mr-2"></div>
                         <span>전체</span>
@@ -530,6 +500,8 @@ const Note = () => {
               </CardHeader>
               <CardContent>
                 <Textarea
+                  value={contentText}
+                  onChange={(e) => setContentText(e.target.value)}
                   placeholder={
                     "#함께라서 특별해\n\n함께라면 모든 일들이 특별해집니다.\n아이의 행동이나 감정을 자유롭게 공유해보세요."
                   }
@@ -543,7 +515,7 @@ const Note = () => {
                 >
                   취소
                 </Button>
-                <Button>게시</Button>
+                <Button onClick={handleCreateNote}>게시</Button>
               </CardFooter>
             </Card>
           </div>
@@ -563,7 +535,7 @@ const Note = () => {
               </Button>
               <Button
                 onClick={() => {
-                  alert("해당 게시글이 커뮤니티에 공유되었습니다.");
+                  handlePostBoard();
                   setOpenDialog(false);
                 }}
               >
