@@ -6,9 +6,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
   return (
     <div className="w-full border-b-2 px-4 py-2">
       <div className="flex justify-between">
@@ -54,9 +57,7 @@ const Header = () => {
               <DropdownMenuItem onClick={() => navigate("/mypage")}>
                 My Page
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/login")}>
-                Logout
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
