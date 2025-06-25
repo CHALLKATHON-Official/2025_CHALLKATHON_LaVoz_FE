@@ -10,6 +10,7 @@ import Login from "./Routes/Login";
 import Signup from "./Routes/Signup";
 import MyPage from "./Routes/MyPage";
 import Notfound from "./Notfound";
+import AfterSignin from "./Routes/AfterSignin";
 
 function App() {
   const router = createBrowserRouter([
@@ -17,7 +18,7 @@ function App() {
       element: <Layout />,
       path: "/",
       children: [
-        { element: <Dashboard />, path: "/" },
+        { element: <Note />, path: "/" },
         {
           path: "/community",
           children: [
@@ -26,12 +27,12 @@ function App() {
           ],
         },
         { element: <Dashboard />, path: "/dashboard" },
-        { element: <Note />, path: "/note" },
         { element: <Wiki />, path: "/wiki" },
         { element: <MyPage />, path: "/mypage" },
       ],
     },
     { element: <Login />, path: "/login" },
+    { element: <AfterSignin />, path: "/after" },
     { element: <Signup />, path: "/signup" },
     { element: <Notfound />, path: "/*" },
   ]);
