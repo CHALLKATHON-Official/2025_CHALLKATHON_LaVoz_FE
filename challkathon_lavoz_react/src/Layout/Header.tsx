@@ -9,8 +9,9 @@ import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate();
+
   return (
-    <div className="w-full border-b-2 px-4 py-2">
+    <div className={"header w-full px-4 py-2 border-b-1 text-black bg-white"}>
       <div className="flex justify-between">
         <div
           onClick={() => navigate("/")}
@@ -21,27 +22,22 @@ const Header = () => {
         <div className="flex space-x-4 items-center">
           <div
             onClick={() => navigate("/note")}
-            className="cursor-pointer text-gray-800 hover:text-black"
+            className="text cursor-pointer"
           >
-            Note
+            공유노트
           </div>
           <div
             onClick={() => navigate("/dashboard")}
-            className="cursor-pointer text-gray-800 hover:text-black"
+            className="text cursor-pointer"
           >
-            Dashboard
+            대시보드
           </div>
-          <div
-            onClick={() => navigate("/issue")}
-            className="cursor-pointer text-gray-800 hover:text-black"
-          >
-            Issue
-          </div>
+
           <div
             onClick={() => navigate("/community")}
-            className="cursor-pointer text-gray-800 hover:text-black"
+            className="text cursor-pointer"
           >
-            community
+            커뮤니티
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

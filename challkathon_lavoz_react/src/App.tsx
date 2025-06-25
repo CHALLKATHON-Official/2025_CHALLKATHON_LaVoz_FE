@@ -1,10 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./Layout/Layout";
-import Home from "./Routes/Home";
 import Community from "./Routes/community/Community";
 import CommunityPost from "./Routes/community/CommunityPost";
 import Dashboard from "./Routes/Dashboard";
-import Issue from "./Routes/Issue";
 import Note from "./Routes/Note";
 import Wiki from "./Routes/Wiki";
 import Login from "./Routes/Login";
@@ -18,7 +16,7 @@ function App() {
       element: <Layout />,
       path: "/",
       children: [
-        { element: <Home />, path: "/" },
+        { element: <Dashboard />, path: "/" },
         {
           path: "/community",
           children: [
@@ -27,7 +25,6 @@ function App() {
           ],
         },
         { element: <Dashboard />, path: "/dashboard" },
-        { element: <Issue />, path: "/issue" },
         { element: <Note />, path: "/note" },
         { element: <Wiki />, path: "/wiki" },
         { element: <MyPage />, path: "/mypage" },

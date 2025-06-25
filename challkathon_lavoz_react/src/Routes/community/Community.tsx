@@ -11,14 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import { GrAttachment } from "react-icons/gr";
 
@@ -32,19 +24,6 @@ const Community = () => {
   };
   return (
     <div className="space-y-4 py-5 pb-10">
-      {/* 브레드크럼 */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Community</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       {/* 제목 */}
       <div className="text-3xl font-bold py-6">Community</div>
       {/* 글쓰기 박스 */}
