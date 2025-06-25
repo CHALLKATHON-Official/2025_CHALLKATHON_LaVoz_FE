@@ -46,7 +46,7 @@ import {
 } from "react-icons/fa";
 import { FaCircleArrowUp } from "react-icons/fa6";
 import { BiFilterAlt } from "react-icons/bi";
-import { MdAttachFile } from "react-icons/md";
+import { GrAttachment } from "react-icons/gr";
 
 const Note = () => {
   const [liked, setLiked] = useState<boolean>(false);
@@ -529,7 +529,7 @@ const Note = () => {
                     className="border-gray-200 bg-gray-100 hover:bg-gray-200"
                     onClick={handleFileButtonClick}
                   >
-                    <MdAttachFile className="text-black" />
+                    <GrAttachment className="text-black" />
                   </Button>
 
                   {/* 숨겨진 파일 선택 input */}

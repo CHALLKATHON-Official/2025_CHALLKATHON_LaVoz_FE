@@ -70,7 +70,7 @@ const Dashboard = () => {
       </Breadcrumb>
       <div className="text-3xl font-bold pt-10 pb-5">Dashboard</div>
       <div className="space-y-4 py-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
           {/* 시간 별 빈번한 행동/감정 */}
           <Card>
             <CardHeader>
@@ -79,18 +79,18 @@ const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Table className="table-fixed">
+              <Table className="w-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[40px]">시간대</TableHead>
-                    <TableHead className="w-[100px]">행동</TableHead>
-                    <TableHead className="w-[100px]">감정</TableHead>
+                    <TableHead className="px-6">행동</TableHead>
+                    <TableHead className="px-6">감정</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   <TableRow>
                     <TableCell className="font-medium">아침</TableCell>
-                    <TableCell className="break-keep whitespace-pre-wrap">
+                    <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
                       일어날 때 꼭 인형이 옆에 있어야하고 밥을 먹을때 좋아하는
                       캐릭터 숟가락을 써야해요
                     </TableCell>
@@ -127,34 +127,39 @@ const Dashboard = () => {
                 카테고리 별 행동 발생 횟수
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center h-[300px]">
-              <ResponsiveContainer width="70%" height="70%">
-                <PieChart>
-                  <Pie
-                    dataKey="value"
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                  >
-                    {pieData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-4">
+            <CardContent className="flex justify-center items-center gap-x-12 px-4">
+              {/* 파이차트 영역 */}
+              <div className="w-[180px]">
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      dataKey="value"
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius="100%"
+                    >
+                      {pieData.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* 파이 조각 설명 영역 */}
+              <div className="space-y-2 text-sm">
                 {pieData.map((entry, index) => (
                   <div key={`legend-${index}`} className="flex items-center">
                     <div
-                      className="w-4 h-4 mr-2"
+                      className="w-3 h-3 mr-2"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     ></div>
-                    <span>{entry.name}</span>
+                    <span className="break-keep">{entry.name}</span>
                   </div>
                 ))}
               </div>
@@ -179,7 +184,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid lg:grid-cols-2 grid-cols-1  gap-4">
           {/* 오늘의 감정 흐름 */}
           <Card>
             <CardHeader>
@@ -260,20 +265,26 @@ const Dashboard = () => {
             <CardContent className="flex flex-col space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="text-6xl">😄</div>
-                <Card className="w-1/2">
-                  <CardContent>루틴을 잊지마세요</CardContent>
+                <Card className="w-2/3">
+                  <CardContent className="break-keep">
+                    루틴을 잊지마세요
+                  </CardContent>
                 </Card>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-6xl">😫</div>
-                <Card className="w-1/2">
-                  <CardContent>등을 약하게 두드려 주세요</CardContent>
+                <Card className="w-2/3">
+                  <CardContent className="break-keep">
+                    등을 약하게 두드려 주세요
+                  </CardContent>
                 </Card>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-6xl">😵‍💫</div>
-                <Card className="w-1/2">
-                  <CardContent>안정감을 느끼던 노래를 들려주세요</CardContent>
+                <Card className="w-2/3">
+                  <CardContent className="break-keep">
+                    안정감을 느끼던 노래를 들려주세요
+                  </CardContent>
                 </Card>
               </div>
             </CardContent>
