@@ -56,6 +56,7 @@ interface organizationInterface {
 
 const AfterSignin = () => {
   const [newOrgaName, setNewOrgaName] = useState("");
+  const [invitaion, setInvitation] = useState("");
   const [orgas, setOrgas] = useState<organizationInterface[]>([]);
   const navigate = useNavigate();
   const onCreate = async () => {
@@ -67,6 +68,8 @@ const AfterSignin = () => {
         alert(res.data.message);
       })
       .catch((err) => console.log(err));
+
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -85,7 +88,7 @@ const AfterSignin = () => {
     <div className="px-8 py-10">
       <div className="font-bold">접속할 오가니제이션을 선택해주세요</div>
 
-      <div className="pt-5 flex justify-end">
+      <div className="pt-5 flex justify-end gap-3">
         <Drawer>
           <DrawerTrigger>
             <Button>새 오가니제이션 생성하기</Button>
@@ -105,6 +108,21 @@ const AfterSignin = () => {
             </div>
           </DrawerContent>
         </Drawer>
+
+        <Drawer>
+          <DrawerTrigger>
+            <Button>초대코드 입력하기</Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>초대 코드를 입력해주세요</DrawerTitle>
+            </DrawerHeader>
+            <div className="h-[40vh] w-full max-w-[900px] mx-auto mt-10 px-10">
+              <Input onChange={(e) => setInvitation(e.target.value)} />
+              <Button className="w-full mt-2">제출하기</Button>
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
 
       <div className="my-5 max-w-[900px] mx-auto">
@@ -114,6 +132,7 @@ const AfterSignin = () => {
               <TableHead>아이디</TableHead>
               <TableHead>오가니제이션 이름</TableHead>
               <TableHead>접속</TableHead>
+              <TableHead>삭제</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -134,6 +153,24 @@ const AfterSignin = () => {
                     }}
                   >
                     접속하기
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    className="cursor-pointer bg-red-400 hover:bg-red-500"
+                    onClick={async () => {
+                      const ok = confirm("정말로 삭제하시겠습니까?");
+                      if (ok) {
+                        localStorage.removeItem("currentOrganizationId");
+                        await apiClient
+                          .delete(`/organization/${orga.organizationId}`)
+                          .then((res) => console.log(res))
+                          .catch((err) => console.log(err));
+                      }
+                      window.location.reload();
+                    }}
+                  >
+                    삭제하기
                   </Button>
                 </TableCell>
               </TableRow>
