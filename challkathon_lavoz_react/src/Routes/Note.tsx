@@ -27,14 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 import { IoMdShare } from "react-icons/io";
 import {
   FaSearch,
@@ -68,17 +61,6 @@ const Note = () => {
   return (
     <div className="pt-5 pb-10">
       {/* 브레드크럼 */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Note</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
 
       {/* 검색 + 버튼 영역 */}
       <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
