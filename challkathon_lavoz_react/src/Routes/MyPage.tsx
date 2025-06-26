@@ -58,7 +58,7 @@ const MyPage = () => {
       })
       .then((res) => alert(res.data.message))
       .catch((err) => console.log(err));
-    window.location.reload();
+    navigate("/tmp");
   };
 
   useEffect(() => {

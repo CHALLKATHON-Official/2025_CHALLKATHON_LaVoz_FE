@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -41,6 +41,7 @@ const CommunityPost = () => {
   const [comment, setComment] = useState<commentInterface[]>([]);
   const [commentWrite, setCommentWrite] = useState("");
   const [post, setPost] = useState<postInterface>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getPost = async () => {
@@ -216,7 +217,7 @@ const CommunityPost = () => {
                       content: commentWrite,
                     })
                     .then(() => {
-                      window.location.reload();
+                      navigate("/tmp");
                     })
                     .catch((err) => console.log(err));
                 }}

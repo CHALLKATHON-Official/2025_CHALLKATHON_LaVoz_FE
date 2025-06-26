@@ -60,7 +60,7 @@ const Community = () => {
       })
       .then((res) => {
         alert(res.data.message);
-        window.location.reload();
+        navigate("/tmp");
       })
       .catch((err) => {
         console.log(err);

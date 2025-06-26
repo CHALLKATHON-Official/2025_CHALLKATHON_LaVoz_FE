@@ -36,7 +36,7 @@ const AfterSignin = () => {
       })
       .catch((err) => console.log(err));
 
-    window.location.reload();
+    navigate("/tmp");
   };
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const AfterSignin = () => {
                       inviteCode: invitation,
                     })
                     .then(() => {
-                      window.location.reload();
+                      navigate("/tmp");
                     })
                     .catch((err) => console.log(err));
                 }}
@@ -149,7 +149,7 @@ const AfterSignin = () => {
                           .delete(`/organization/${orga.organizationId}`)
                           .catch((err) => console.log(err));
                       }
-                      window.location.reload();
+                      navigate("/tmp");
                     }}
                   >
                     삭제하기
