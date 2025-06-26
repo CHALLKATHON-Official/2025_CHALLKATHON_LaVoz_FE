@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { isSameDay, parseISO, format } from "date-fns";
+import {
+  isSameDay,
+  parseISO,
+  format,
+  eachDayOfInterval,
+  startOfWeek,
+  endOfWeek,
+} from "date-fns";
 import {
   Card,
   CardContent,
@@ -30,12 +37,26 @@ import type { Note as NoteType } from "@/types/note";
 
 import { useAllNotes } from "@/api/note.api";
 import { useOrganization } from "@/api/organization.api";
+import { useSearchNote } from "@/api/noteSearch.api";
 
 const Dashboard = () => {
   const [todaysNotes, setTodaysNotes] = useState<NoteType[]>([]);
+  const [barData, setBarData] = useState<{ day: string; count: number }[]>([]);
   const { data: organization } = useOrganization();
   const organizationId = organization?.result[0].organizationId;
   const { data: notes } = useAllNotes(organizationId);
+  const { data: searchNotes } = useSearchNote("루틴", organizationId);
+
+  const actionNotes = todaysNotes.filter((note) => note.emotion === "행동");
+  const emotionNotes = todaysNotes.filter((note) => note.emotion === "감정");
+  const issueNotes = todaysNotes.filter((note) => note.emotion === "이슈");
+
+  // 파이 차트 데이터
+  const pieData = [
+    { name: "행동", value: actionNotes.length },
+    { name: "감정", value: emotionNotes.length },
+    { name: "이슈", value: issueNotes.length },
+  ];
 
   useEffect(() => {
     const today = new Date();
@@ -45,25 +66,45 @@ const Dashboard = () => {
     );
 
     setTodaysNotes(todays || []);
-  }, [notes]);
+    const weekDays = ["월", "화", "수", "목", "금", "토", "일"];
+    const counts: Record<string, number> = {
+      월: 0,
+      화: 0,
+      수: 0,
+      목: 0,
+      금: 0,
+      토: 0,
+      일: 0,
+    };
 
-  // 파이 차트 데이터
-  const pieData = [
-    { name: "자기전 루틴", value: 8 },
-    { name: "식사 전 행동", value: 5 },
-    { name: "외출 전 루틴", value: 3 },
-  ];
+    issueNotes?.forEach((note: NoteType) => {
+      const day = format(parseISO(note.createdAt), "eee", {
+        locale: undefined,
+      });
 
-  // 바 차트 데이터
-  const barData = [
-    { day: "월", count: 3 },
-    { day: "화", count: 5 },
-    { day: "수", count: 2 },
-    { day: "목", count: 6 },
-    { day: "금", count: 4 },
-    { day: "토", count: 1 },
-    { day: "일", count: 2 },
-  ];
+      const dayMap: Record<string, string> = {
+        Mon: "월",
+        Tue: "화",
+        Wed: "수",
+        Thu: "목",
+        Fri: "금",
+        Sat: "토",
+        Sun: "일",
+      };
+      const koreanDay = dayMap[day];
+      if (koreanDay) {
+        counts[koreanDay]++;
+      }
+    });
+
+    const resultBarData = weekDays.map((day) => ({
+      day,
+      count: counts[day],
+    }));
+
+    setBarData(resultBarData);
+    console.log(resultBarData);
+  }, [issueNotes, notes]);
 
   // 파이 차트 색상
   const COLORS = ["#CEDEF2", "#A0C4F2", "#6DA7F2"];
@@ -124,9 +165,7 @@ const Dashboard = () => {
           {/* 카테고리 별 행동 발생 횟수 */}
           <Card className="w-full">
             <CardHeader>
-              <CardTitle className="text-lg">
-                카테고리 별 행동 발생 횟수
-              </CardTitle>
+              <CardTitle className="text-lg">카테고리 별 발생 횟수</CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center items-center gap-x-12 px-4">
               {/* 파이차트 영역 */}
@@ -185,7 +224,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
-        <div className="grid lg:grid-cols-2 grid-cols-1  gap-4">
+        <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
           {/* 오늘의 감정 흐름 */}
           <Card>
             <CardHeader>
@@ -196,7 +235,7 @@ const Dashboard = () => {
                 {/* 수직선 */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-[2px] bg-gray-200 z-0"></div>
 
-                <div className="space-y-12">
+                <div className="space-y-6">
                   {todaysNotes.map((note, index) => (
                     <div
                       key={note.noteId}
@@ -213,9 +252,7 @@ const Dashboard = () => {
                                   {format(parseISO(note.createdAt), "HH:mm")}
                                 </div>
                               </div>
-                              <div className="text-sm mt-1 break-keep">
-                                {note.content}
-                              </div>
+                              <div className="text-sm mt-1">{note.content}</div>
                             </div>
                           </div>
                           <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 bg-blue-500 rounded-full border-4 border-white z-10"></div>
@@ -233,7 +270,9 @@ const Dashboard = () => {
                                   {format(parseISO(note.createdAt), "HH:mm")}
                                 </div>
                               </div>
-                              <div className="text-sm mt-1">{note.content}</div>
+                              <div className="text-sm mt-1 break-keep">
+                                {note.content}
+                              </div>
                             </div>
                           </div>
                         </>
