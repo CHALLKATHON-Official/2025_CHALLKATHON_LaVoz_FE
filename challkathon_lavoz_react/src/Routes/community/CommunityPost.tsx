@@ -86,9 +86,7 @@ const CommunityPost = () => {
 
               <div
                 onClick={async () => {
-                  await apiClient
-                    .post(`/boards/${postId}/bookmark`)
-                    .then((res) => console.log(res));
+                  await apiClient.post(`/boards/${postId}/bookmark`);
                   setBookmarked(!bookmarked);
                 }}
               >
@@ -217,8 +215,7 @@ const CommunityPost = () => {
                     .post(`/boards/${postId}/comments`, {
                       content: commentWrite,
                     })
-                    .then((res) => {
-                      console.log(res);
+                    .then(() => {
                       window.location.reload();
                     })
                     .catch((err) => console.log(err));

@@ -180,7 +180,6 @@ const AfterSignin = () => {
                         localStorage.removeItem("currentOrganizationId");
                         await apiClient
                           .delete(`/organization/${orga.organizationId}`)
-                          .then((res) => console.log(res))
                           .catch((err) => console.log(err));
                       }
                       window.location.reload();

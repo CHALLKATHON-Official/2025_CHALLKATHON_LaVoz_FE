@@ -31,7 +31,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import Face from "@/Assets/face.png";
-import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import FemaleFace from "@/Assets/FemaleFace.png";
 
 interface boardInterface {
@@ -77,6 +77,7 @@ const MyPage = () => {
   const [user, setUser] = useState<userInterface>();
   const { control, register, handleSubmit } = useForm<userInterface>();
   const date = new Date();
+  const [main, setMain] = useState("Unknown");
 
   const onUserChange = async (data: userInterface) => {
     await apiClient
@@ -103,7 +104,17 @@ const MyPage = () => {
         .catch((err) => console.log(err));
     };
 
+    const getCurrentOrga = async () => {
+      const info = (await apiClient.get(`/organization`)).data.result;
+      const currentOrgaId = Number(
+        localStorage.getItem("currentOrganizationId")
+      );
+      const res = info.filter((i: any) => i.organizationId === currentOrgaId);
+      setMain(res[0].name);
+    };
+
     getUser();
+    getCurrentOrga();
   }, []);
 
   useEffect(() => {
@@ -215,64 +226,77 @@ const MyPage = () => {
       </div>
 
       <div className="w-full max-w-[900px] mx-auto">
-        <div className="flex items-center gap-5">
-          <div className="font-bold text-2xl">오가니제이션 대상자 정보</div>
+        <div className="gap-5">
+          <div className="flex items-center gap-4">
+            <div className="font-bold text-2xl">집중 대상자 정보</div>
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button>집중 대상자 변경</Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <form
+                  className="max-w-[900px] w-full md:mx-auto px-5 mb-10"
+                  onSubmit={handleSubmit(onUserChange)}
+                >
+                  <DrawerHeader>
+                    <DrawerTitle>대상자 정보 변경</DrawerTitle>
+                    <DrawerDescription>
+                      대상자 정보를 변경합니다.
+                    </DrawerDescription>
+                  </DrawerHeader>
+
+                  <div className="w-full flex flex-col gap-5">
+                    <Input
+                      {...register("childName")}
+                      placeholder="대상자 이름"
+                    />
+
+                    <input
+                      {...register("childBirthday")}
+                      type="date"
+                      className="px-3 py-1 border-1 shadow-sm rounded-md"
+                      defaultValue={date?.toISOString().slice(0, 10)}
+                    />
+
+                    <Controller
+                      name="childGender"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={String(field.value ?? "")}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="성별을 고르세요." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="MALE">남자</SelectItem>
+                              <SelectItem value="FEMALE">여자</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    <Button className="w-full">제출</Button>
+                  </div>
+                </form>
+              </DrawerContent>
+            </Drawer>
+          </div>
           {user?.childName ? (
-            <Button onClick={() => navigate("/dashboard")}>
-              {user?.childName}님의 대시보드 보러 가기
-            </Button>
+            <Alert className="mt-5">
+              <AlertCircleIcon />
+              <AlertTitle>
+                현재 속한 오가니제이션은 회원님의 집중 대상자 오가니제이션이
+                아닐 수 있습니다.
+              </AlertTitle>
+
+              <AlertDescription>
+                지금 속한 오가니제이션 이름은 [ {main} ] 입니다.
+              </AlertDescription>
+            </Alert>
           ) : null}
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button>대상자 정보 변경</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <form
-                className="max-w-[900px] w-full md:mx-auto px-5 mb-10"
-                onSubmit={handleSubmit(onUserChange)}
-              >
-                <DrawerHeader>
-                  <DrawerTitle>대상자 정보 변경</DrawerTitle>
-                  <DrawerDescription>
-                    대상자 정보를 변경합니다.
-                  </DrawerDescription>
-                </DrawerHeader>
-
-                <div className="w-full flex flex-col gap-5">
-                  <Input {...register("childName")} placeholder="대상자 이름" />
-
-                  <input
-                    {...register("childBirthday")}
-                    type="date"
-                    className="px-3 py-1 border-1 shadow-sm rounded-md"
-                    defaultValue={date?.toISOString().slice(0, 10)}
-                  />
-
-                  <Controller
-                    name="childGender"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={String(field.value ?? "")}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="성별을 고르세요." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="MALE">남자</SelectItem>
-                            <SelectItem value="FEMALE">여자</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  <Button className="w-full">제출</Button>
-                </div>
-              </form>
-            </DrawerContent>
-          </Drawer>
         </div>
 
         {user?.childName ? (
@@ -297,10 +321,6 @@ const MyPage = () => {
               <div className="font-bold text-5xl">{user?.childName}</div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="bg-blue-500 text-white">
-                    <BadgeCheckIcon />
-                    {user?.role ? Role["ROLE_CHILD"] : ""}
-                  </Badge>
                   <Badge
                     variant="secondary"
                     className={
