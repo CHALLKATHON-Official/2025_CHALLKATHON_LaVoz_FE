@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
+import Face from "@/Assets/face.png";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
-                <AvatarImage src="https://github.com/yiseoffline.png" />
+                <AvatarImage src={Face} />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
