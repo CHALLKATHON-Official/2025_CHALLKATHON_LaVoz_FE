@@ -36,7 +36,6 @@ const Issue = () => {
             question: data.message,
           })
           .then((res) => {
-            console.log(res);
             setIssueList([...issueLists, res.data.result]);
           })
           .catch((err) => console.log(err));

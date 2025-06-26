@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import type { Comment as CommentType, Note as NoteType } from "@/types/note";
 
@@ -46,13 +45,11 @@ import { BiFilterAlt } from "react-icons/bi";
 import { GrAttachment } from "react-icons/gr";
 import toast from "react-hot-toast";
 
-import { useOrganization } from "@/api/organization.api";
 import { useCreateNote, useAllNotes } from "@/api/note.api";
 import { usePostComment } from "@/api/comment.api";
 import { usePostBoard } from "@/api/borad.api";
 
 const Note = () => {
-  const navigate = useNavigate();
   const now = new Date();
   const formatted = format(now, "yyyy-MM-dd HH:mm");
 
@@ -73,13 +70,11 @@ const Note = () => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { data: organization } = useOrganization();
-  const organizationId = organization?.result[0].organizationId;
-
+  const organizationId = Number(localStorage.getItem("currentOrganizationId"));
   const { mutate: createNote } = useCreateNote();
   const { mutate: postComment } = usePostComment();
   const { mutate: postBoard } = usePostBoard();
-  const { data: notes, refetch } = useAllNotes(organizationId);
+  const { data: notes, refetch } = useAllNotes(organizationId!);
 
   const handleFileButtonClick = () => {
     fileInputRef.current?.click();
