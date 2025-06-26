@@ -64,7 +64,7 @@ const Login = () => {
               className="cursor-pointer"
               variant="link"
             >
-              Sing up
+              Sign up
             </Button>
           </CardAction>
         </CardHeader>

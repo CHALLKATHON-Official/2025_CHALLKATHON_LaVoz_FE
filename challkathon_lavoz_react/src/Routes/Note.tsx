@@ -222,18 +222,14 @@ const Note = () => {
   const handlePostBoard = async () => {
     if (!shareNote) return;
 
-    try {
-      postBoard({
-        title: shareNote.title,
-        content: shareNote.content,
-      });
-      toast.success("해당 게시글이 커뮤니티에 공유되었습니다.");
-      await refetch();
-    } catch {
-      toast.error("커뮤니티 공유 중 오류가 발생했습니다.");
-    } finally {
-      setShareNote(null); // 상태 초기화
-    }
+    postBoard({
+      title: shareNote.title,
+      content: shareNote.content,
+    });
+    toast.success("해당 게시글이 커뮤니티에 공유되었습니다.");
+    navigate("/community");
+    refetch();
+    setShareNote(null);
   };
 
   return (
