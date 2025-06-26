@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/card";
 import { apiClient } from "@/api/client";
 import { useForm } from "react-hook-form";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { AlertCircleIcon } from "lucide-react";
 
 interface onWriteInterface {
   title: string;
@@ -29,10 +31,24 @@ interface boardInterface {
   updatedAt: string;
 }
 
+interface topViewInterface {
+  boardId: number;
+  title: string;
+  content: string;
+  memberId: number;
+  memberName: string;
+  viewCount: number;
+  createdAt: string;
+  updatedAt: string;
+  bookmarked: boolean;
+}
+
 const Community = () => {
   const navigate = useNavigate();
   const [isReadyPost, setIsReadyPost] = useState<boolean>(false);
   const [board, setBoard] = useState<boardInterface[]>([]);
+  const [topView, setTopView] = useState<topViewInterface[]>([]);
+
   const submitRef = useRef<HTMLInputElement | null>(null);
   const { register, handleSubmit } = useForm<onWriteInterface>();
   const onWrite = async (data: onWriteInterface) => {
@@ -62,7 +78,14 @@ const Community = () => {
           console.log(err);
         });
     };
+    const getHot = async () => {
+      await apiClient
+        .get("/boards/top-viewed")
+        .then((res) => setTopView(res.data.result))
+        .catch((err) => console.log(err));
+    };
 
+    getHot();
     getCommunity();
   }, []);
 
@@ -148,7 +171,17 @@ const Community = () => {
                         (new Date().getTime() -
                           new Date(b.createdAt).getTime()) /
                           (1000 * 60)
-                      ) + "분 전"
+                      ) < 60
+                      ? Math.floor(
+                          (new Date().getTime() -
+                            new Date(b.createdAt).getTime()) /
+                            (1000 * 60)
+                        ) + "분 전"
+                      : Math.floor(
+                          (new Date().getTime() -
+                            new Date(b.createdAt).getTime()) /
+                            (1000 * 60 * 60)
+                        ) + "시간 전"
                     : Math.floor(
                         (new Date().getTime() -
                           new Date(b.createdAt).getTime()) /
@@ -166,18 +199,52 @@ const Community = () => {
         <div className="w-1/3 h-1/3 border-1 rounded-2xl p-4 hidden xl:block">
           <div className="font-bold text-lg px-2 pt-2 pb-4">실시간 인기 글</div>
           <div className="space-y-4">
-            <Card className="shadow-xs cursor-pointer hover:bg-gray-50">
-              <CardContent className="flex items-center justify-between">
-                <div>급해서 여기도 올립니다</div>
-                <div className="text-sm text-gray-400">24분 전</div>
-              </CardContent>
-            </Card>
-            <Card className="shadow-xs cursor-pointer hover:bg-gray-50">
-              <CardContent className="flex items-center justify-between">
-                <div>다시 생각해보니까</div>
-                <div className="text-sm text-gray-400">06/24 20:18</div>
-              </CardContent>
-            </Card>
+            {topView.length > 0 ? (
+              topView.map((tv) => (
+                <>
+                  <Card
+                    className="shadow-xs cursor-pointer hover:bg-gray-50"
+                    onClick={() => navigate(`${tv.boardId}`)}
+                  >
+                    <CardContent className="flex items-center justify-between">
+                      <div>{tv.title}</div>
+                      <div className="text-sm text-gray-400">
+                        {Math.ceil(
+                          (new Date().getTime() -
+                            new Date(tv.createdAt).getTime()) /
+                            (1000 * 60 * 60 * 24)
+                        ) <= 1
+                          ? Math.floor(
+                              (new Date().getTime() -
+                                new Date(tv.createdAt).getTime()) /
+                                (1000 * 60)
+                            ) < 60
+                            ? Math.floor(
+                                (new Date().getTime() -
+                                  new Date(tv.createdAt).getTime()) /
+                                  (1000 * 60)
+                              ) + "분 전"
+                            : Math.floor(
+                                (new Date().getTime() -
+                                  new Date(tv.createdAt).getTime()) /
+                                  (1000 * 60 * 60)
+                              ) + "시간 전"
+                          : Math.floor(
+                              (new Date().getTime() -
+                                new Date(tv.createdAt).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            ) + "일 전"}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              ))
+            ) : (
+              <Alert variant="destructive">
+                <AlertCircleIcon />
+                <AlertTitle>인기 게시물이 없습니다.</AlertTitle>
+              </Alert>
+            )}
           </div>
         </div>
       </div>

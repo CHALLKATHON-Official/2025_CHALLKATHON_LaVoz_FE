@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { FaCircleArrowUp } from "react-icons/fa6";
@@ -48,7 +47,6 @@ const CommunityPost = () => {
       await apiClient
         .get(`/boards/${postId}`)
         .then((res) => {
-          console.log(res);
           setPost(res.data.result);
           setBookmarked(res.data.result.bookmarked);
         })
@@ -178,7 +176,17 @@ const CommunityPost = () => {
                                 (new Date().getTime() -
                                   new Date(c.createdAt).getTime()) /
                                   (1000 * 60)
-                              ) + "분 전"
+                              ) < 60
+                              ? Math.floor(
+                                  (new Date().getTime() -
+                                    new Date(c.createdAt).getTime()) /
+                                    (1000 * 60)
+                                ) + "분 전"
+                              : Math.floor(
+                                  (new Date().getTime() -
+                                    new Date(c.createdAt).getTime()) /
+                                    (1000 * 60 * 60)
+                                ) + "시간 전"
                             : Math.floor(
                                 (new Date().getTime() -
                                   new Date(c.createdAt).getTime()) /

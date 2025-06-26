@@ -187,7 +187,6 @@ const Note = () => {
         content: currentComment,
       });
       toast.success("댓글이 등록되었습니다.");
-      navigate("/community");
       refetch(); // 노트 목록 새로고침
       // 댓글 초기화
       setCommentMap((prev) => ({ ...prev, [noteId]: "" }));
@@ -311,10 +310,10 @@ const Note = () => {
                         note.emotion === "행동"
                           ? "bg-red-300"
                           : note.emotion === "감정"
-                            ? "bg-yellow-300"
-                            : note.emotion === "이슈"
-                              ? "bg-blue-300"
-                              : "bg-gray-300"
+                          ? "bg-yellow-300"
+                          : note.emotion === "이슈"
+                          ? "bg-blue-300"
+                          : "bg-gray-300"
                       }`}
                     >
                       <div className={`w-2 h-2 rounded-full bg-white`}></div>
