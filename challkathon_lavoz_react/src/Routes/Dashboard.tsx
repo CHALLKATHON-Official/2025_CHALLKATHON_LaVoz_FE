@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  isSameDay,
-  parseISO,
-  format,
-  eachDayOfInterval,
-  startOfWeek,
-  endOfWeek,
-} from "date-fns";
+import { isSameDay, parseISO, format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -37,7 +30,7 @@ import type { Note as NoteType } from "@/types/note";
 
 import { useAllNotes } from "@/api/note.api";
 import { useOrganization } from "@/api/organization.api";
-import { useSearchNote } from "@/api/noteSearch.api";
+import { useSearchNote, useSimilaritySearch } from "@/api/noteSearch.api";
 
 const Dashboard = () => {
   const [todaysNotes, setTodaysNotes] = useState<NoteType[]>([]);
@@ -45,6 +38,9 @@ const Dashboard = () => {
   const { data: organization } = useOrganization();
   const organizationId = organization?.result[0].organizationId;
   const { data: notes } = useAllNotes(organizationId);
+  const { data: happyNotes } = useSimilaritySearch("행복해", organizationId);
+  const { data: angryNotes } = useSimilaritySearch("화났어", organizationId);
+  const { data: anxiousNotes } = useSimilaritySearch("불안해", organizationId);
   const { data: searchNotes } = useSearchNote("루틴", organizationId);
 
   const actionNotes = todaysNotes.filter((note) => note.emotion === "행동");
@@ -296,7 +292,9 @@ const Dashboard = () => {
                 <div className="text-6xl">😄</div>
                 <Card className="w-2/3">
                   <CardContent className="break-keep">
-                    루틴을 잊지마세요
+                    {happyNotes?.map((similarity: NoteType) => (
+                      <div key={similarity.noteId}>{similarity.content}</div>
+                    ))}
                   </CardContent>
                 </Card>
               </div>
@@ -304,7 +302,9 @@ const Dashboard = () => {
                 <div className="text-6xl">😫</div>
                 <Card className="w-2/3">
                   <CardContent className="break-keep">
-                    등을 약하게 두드려 주세요
+                    {angryNotes?.map((similarity: NoteType) => (
+                      <div key={similarity.noteId}>{similarity.content}</div>
+                    ))}
                   </CardContent>
                 </Card>
               </div>
@@ -312,7 +312,9 @@ const Dashboard = () => {
                 <div className="text-6xl">😵‍💫</div>
                 <Card className="w-2/3">
                   <CardContent className="break-keep">
-                    안정감을 느끼던 노래를 들려주세요
+                    {anxiousNotes?.map((similarity: NoteType) => (
+                      <div key={similarity.noteId}>{similarity.content}</div>
+                    ))}
                   </CardContent>
                 </Card>
               </div>
