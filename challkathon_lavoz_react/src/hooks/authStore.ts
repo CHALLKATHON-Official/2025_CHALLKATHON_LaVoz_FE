@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set(newState);
   },
   logout: () => {
-    localStorage.removeItem("authState");
+    localStorage.clear();
     set({
       isAuthenticated: false,
       accessToken: null,

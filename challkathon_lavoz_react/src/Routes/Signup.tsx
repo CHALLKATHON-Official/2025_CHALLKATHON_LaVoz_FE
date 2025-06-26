@@ -21,16 +21,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { apiClient } from "@/api/client";
+import type { userRegisterInterface } from "@/types/user";
 
 const Signup = () => {
   const navigate = useNavigate();
-  interface userRegisterInterface {
-    loginId: string;
-    password: string;
-    passwordCheck: string;
-    name: string;
-    role: string;
-  }
+
   const {
     register,
     handleSubmit,
@@ -38,6 +33,7 @@ const Signup = () => {
     watch,
     control,
   } = useForm<userRegisterInterface>();
+
   const onSubmit = async (data: userRegisterInterface) => {
     await apiClient
       .post("/member/register", {

@@ -35,3 +35,37 @@ export interface StatusAnalysisResponse {
   message: string;
   result: StatusAnalysisResult;
 }
+
+interface noteInterface {
+  noteId: number;
+  title: string;
+  content: string;
+  emotion: string;
+  time: string;
+  memberId: number;
+  memberName: string;
+  memberRole: string;
+  organizationId: number;
+  organizationName: string;
+  createdAt: string;
+  updatedAt: string;
+  comments?: [
+    {
+      commentId: number;
+      content: string;
+      memberId: number;
+      memberName: string;
+      memberRole: string;
+      noteId: number;
+      createdAt: string;
+      updatedAt: string;
+    }
+  ];
+}
+
+export interface organizationInterface {
+  organizationId: number;
+  name: string;
+  inviteCode: string;
+  notes?: noteInterface[];
+}

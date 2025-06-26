@@ -17,42 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { organizationInterface } from "@/types/organization";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-interface noteInterface {
-  noteId: number;
-  title: string;
-  content: string;
-  emotion: string;
-  time: string;
-  memberId: number;
-  memberName: string;
-  memberRole: string;
-  organizationId: number;
-  organizationName: string;
-  createdAt: string;
-  updatedAt: string;
-  comments?: [
-    {
-      commentId: number;
-      content: string;
-      memberId: number;
-      memberName: string;
-      memberRole: string;
-      noteId: number;
-      createdAt: string;
-      updatedAt: string;
-    }
-  ];
-}
-
-interface organizationInterface {
-  organizationId: number;
-  name: string;
-  inviteCode: string;
-  notes?: noteInterface[];
-}
 
 const AfterSignin = () => {
   const [newOrgaName, setNewOrgaName] = useState("");

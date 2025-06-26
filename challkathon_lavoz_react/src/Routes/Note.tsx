@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { format } from "date-fns";
 import type { Comment as CommentType, Note as NoteType } from "@/types/note";
 
@@ -49,6 +49,7 @@ import toast from "react-hot-toast";
 import { useCreateNote, useAllNotes } from "@/api/note.api";
 import { usePostComment } from "@/api/comment.api";
 import { usePostBoard } from "@/api/borad.api";
+import { useNavigate } from "react-router-dom";
 
 const Note = () => {
   const now = new Date();
@@ -76,6 +77,18 @@ const Note = () => {
   const { mutate: postComment } = usePostComment();
   const { mutate: postBoard } = usePostBoard();
   const { data: notes, refetch } = useAllNotes(organizationId!);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const orga = localStorage.getItem("currentOrganizationId");
+    if (!orga) {
+      const auth = localStorage.getItem("authState");
+      if (auth) {
+        navigate("/after");
+      } else {
+        navigate("/login");
+      }
+    }
+  }, []);
 
   const handleFileButtonClick = () => {
     fileInputRef.current?.click();

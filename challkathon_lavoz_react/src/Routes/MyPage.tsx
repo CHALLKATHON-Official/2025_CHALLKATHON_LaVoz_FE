@@ -33,47 +33,14 @@ import { useForm, Controller } from "react-hook-form";
 import Face from "@/Assets/face.png";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import FemaleFace from "@/Assets/femaleFace.png";
-
-interface boardInterface {
-  boardId: number;
-  title: string;
-  content: string;
-  memberId: number;
-  memberName: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-enum Role {
-  ROLE_GUARDIAN = "보호자",
-  ROLE_DOCTOR = "의사",
-  ROLE_COUNSLER = "상담사",
-  ROLE_CHILD = "본인",
-}
-
-interface userInterface {
-  memberCreationDate?: string;
-  memberUpdateDate?: string;
-  memberId?: number;
-  memberName?: string;
-  loginId?: string;
-  role?: keyof Role;
-  imageUrl?: string;
-  childName?: string;
-  childBirthday?: string;
-  childGender?: string;
-  childImageUrl?: string;
-}
-
-enum Gender {
-  MALE = "남성",
-  FEMALE = "여성",
-}
+import { Gender, Role } from "@/types/enums";
+import type { Board } from "@/types/board";
+import type { userInterface } from "@/types/user";
 
 const MyPage = () => {
   const navigate = useNavigate();
   const [modal, setModal] = useState(false);
-  const [bookmarks, setBookmarks] = useState<boardInterface[]>([]);
+  const [bookmarks, setBookmarks] = useState<Board[]>([]);
   const [user, setUser] = useState<userInterface>();
   const { control, register, handleSubmit } = useForm<userInterface>();
   const date = new Date();
