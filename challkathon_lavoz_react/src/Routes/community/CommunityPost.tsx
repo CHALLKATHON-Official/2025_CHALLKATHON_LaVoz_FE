@@ -36,7 +36,7 @@ const CommunityPost = () => {
             {/* 프로필, 이름, 작성 시각 */}
             <div className="flex items-center space-x-4">
               <Avatar className="cursor-pointer">
-                <AvatarImage src="https://github.com/yiseoffline.png" />
+                <AvatarImage src={Logo} />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
@@ -113,7 +113,7 @@ const CommunityPost = () => {
           <div className="w-full">
             <div className="flex space-x-3 py-6">
               <Avatar className="cursor-pointer">
-                <AvatarImage src="https://github.com/yunchan312.png" />
+                <AvatarImage src={Logo} />
               </Avatar>
               <div>
                 <div className="flex items-center space-x-2 mb-1">
@@ -128,7 +128,7 @@ const CommunityPost = () => {
             {/* 댓글 작성 부분 */}
             <div className="flex items-center space-x-3">
               <Avatar className="cursor-pointer">
-                <AvatarImage src="https://github.com/yiseoffline.png" />
+                <AvatarImage src={Logo} />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <Textarea

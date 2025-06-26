@@ -44,6 +44,7 @@ import {
 import { FaCircleArrowUp } from "react-icons/fa6";
 import { BiFilterAlt } from "react-icons/bi";
 import { GrAttachment } from "react-icons/gr";
+import Logo from "@/assets/logo.png";
 import toast from "react-hot-toast";
 
 import { useOrganization } from "@/api/organization.api";
@@ -293,7 +294,7 @@ const Note = () => {
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     <Avatar className="cursor-pointer">
-                      <AvatarImage src="https://github.com/yiseoffline.png" />
+                      <AvatarImage src={Logo} />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
@@ -383,7 +384,7 @@ const Note = () => {
                           className="flex space-x-3 py-2"
                         >
                           <Avatar className="cursor-pointer">
-                            <AvatarImage src="https://github.com/yunchan312.png" />
+                            <AvatarImage src={Logo} />
                           </Avatar>
                           <div>
                             <div className="flex items-center space-x-2 mb-1">
@@ -403,7 +404,7 @@ const Note = () => {
                       {/* 댓글 작성 */}
                       <div className="flex items-center space-x-3 pt-4">
                         <Avatar className="cursor-pointer">
-                          <AvatarImage src="https://github.com/yiseoffline.png" />
+                          <AvatarImage src={Logo} />
                           <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
                         <Textarea
