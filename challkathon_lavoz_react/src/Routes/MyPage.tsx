@@ -32,7 +32,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import Face from "@/Assets/face.png";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import FemaleFace from "@/Assets/FemaleFace.png";
+import FemaleFace from "@/Assets/femaleFace.png";
 
 interface boardInterface {
   boardId: number;
