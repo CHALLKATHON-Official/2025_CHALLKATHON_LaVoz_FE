@@ -43,7 +43,7 @@ import {
 import { FaCircleArrowUp } from "react-icons/fa6";
 import { BiFilterAlt } from "react-icons/bi";
 import { GrAttachment } from "react-icons/gr";
-import Logo from "@/assets/logo.png";
+import Face from "@/assets/Face.png";
 import toast from "react-hot-toast";
 
 import { useCreateNote, useAllNotes } from "@/api/note.api";
@@ -164,7 +164,6 @@ const Note = () => {
           },
         }
       );
-
     } catch (error) {
       console.error("게시글 등록 오류:", error);
       toast.error("게시글 등록 중 오류가 발생했습니다.");
@@ -201,7 +200,6 @@ const Note = () => {
           },
         }
       );
-
     } catch {
       toast.error("댓글 등록 중 오류가 발생했습니다.");
     }
@@ -218,7 +216,6 @@ const Note = () => {
       });
       toast.success("해당 게시글이 커뮤니티에 공유되었습니다.");
       await refetch();
-
     } catch {
       toast.error("커뮤니티 공유 중 오류가 발생했습니다.");
     } finally {
@@ -296,7 +293,7 @@ const Note = () => {
 
       <div className="flex flex-col-reverse gap-y-12 xl:flex-row xl:space-x-6">
         {/* 노트 타임라인 */}
-        <div className="w-full xl:flex-1 h-[calc(100vh-250px)] overflow-y-auto pr-2 space-y-8">
+        <div className="w-full xl:flex-1 pr-2 space-y-8">
           {filteredNotes
             ?.slice()
             .reverse()
@@ -305,7 +302,7 @@ const Note = () => {
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     <Avatar className="cursor-pointer">
-                      <AvatarImage src={Logo} />
+                      <AvatarImage src={Face} />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
@@ -395,7 +392,7 @@ const Note = () => {
                           className="flex space-x-3 py-2"
                         >
                           <Avatar className="cursor-pointer">
-                            <AvatarImage src={Logo} />
+                            <AvatarImage src={Face} />
                           </Avatar>
                           <div>
                             <div className="flex items-center space-x-2 mb-1">
@@ -415,7 +412,7 @@ const Note = () => {
                       {/* 댓글 작성 */}
                       <div className="flex items-center space-x-3 pt-4">
                         <Avatar className="cursor-pointer">
-                          <AvatarImage src={Logo} />
+                          <AvatarImage src={Face} />
                           <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
                         <Textarea

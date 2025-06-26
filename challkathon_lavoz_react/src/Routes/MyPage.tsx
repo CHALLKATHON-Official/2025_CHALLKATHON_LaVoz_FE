@@ -135,7 +135,7 @@ const MyPage = () => {
       {modal ? (
         <div
           onClick={() => setModal(false)}
-          className="w-screen h-screen flex items-center justify-center bg-black/30 absolute top-0 left-0"
+          className="w-screen h-screen flex items-center justify-center bg-black/30 absolute top-0 left-0 z-11"
         >
           <div
             onClick={(e) => e.stopPropagation()}
