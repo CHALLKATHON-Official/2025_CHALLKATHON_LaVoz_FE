@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { isSameDay, parseISO, format } from "date-fns";
+import toast from "react-hot-toast";
+
 import {
   Card,
   CardContent,
@@ -9,10 +11,10 @@ import {
 } from "@/components/ui/card";
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
+  TableBody,
   TableRow,
 } from "@/components/ui/table";
 import {
@@ -27,42 +29,72 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { Note as NoteType } from "@/types/note";
+import type { ChatGptStatusDto } from "@/types/organization";
 
 import { useAllNotes } from "@/api/note.api";
-import { useOrganization } from "@/api/organization.api";
-import { useSearchNote, useSimilaritySearch } from "@/api/noteSearch.api";
+import { useOrganization, useStateAnalysis } from "@/api/organization.api";
 
 const Dashboard = () => {
   const [todaysNotes, setTodaysNotes] = useState<NoteType[]>([]);
   const [barData, setBarData] = useState<{ day: string; count: number }[]>([]);
+  const [stateAnalysis, setStateAnalysis] = useState<ChatGptStatusDto | null>(
+    null
+  );
+
   const { data: organization } = useOrganization();
   const organizationId = organization?.result[0].organizationId;
+  const { mutate: analyzeState } = useStateAnalysis();
   const { data: notes } = useAllNotes(organizationId);
-  const { data: happyNotes } = useSimilaritySearch("행복해", organizationId);
-  const { data: angryNotes } = useSimilaritySearch("화났어", organizationId);
-  const { data: anxiousNotes } = useSimilaritySearch("불안해", organizationId);
-  const { data: searchNotes } = useSearchNote("루틴", organizationId);
-
-  const actionNotes = todaysNotes.filter((note) => note.emotion === "행동");
-  const emotionNotes = todaysNotes.filter((note) => note.emotion === "감정");
-  const issueNotes = todaysNotes.filter((note) => note.emotion === "이슈");
-
-  // 파이 차트 데이터
-  const pieData = [
-    { name: "행동", value: actionNotes.length },
-    { name: "감정", value: emotionNotes.length },
-    { name: "이슈", value: issueNotes.length },
-  ];
 
   useEffect(() => {
+    if (organizationId) {
+      analyzeState(organizationId.toString(), {
+        onSuccess: (result) => {
+          setStateAnalysis(result.chatGptStatusDto);
+        },
+        onError: () => {
+          toast.error("상태 분석 실패:");
+        },
+      });
+    }
+  }, [organizationId, analyzeState]);
+
+  const pieDataRaw = [
+    { name: "시각", value: stateAnalysis?.sightSensitivity || 0 },
+    { name: "청각", value: stateAnalysis?.hearingSensitivity || 0 },
+    { name: "후각", value: stateAnalysis?.smellSensitivity || 0 },
+    { name: "미각", value: stateAnalysis?.tasteSensitivity || 0 },
+    { name: "촉각", value: stateAnalysis?.touchSensitivity || 0 },
+    { name: "사회성", value: stateAnalysis?.socialSensitivity || 0 },
+  ];
+
+  // 전체 값이 0인지 검사
+  const total = pieDataRaw.reduce((sum, item) => sum + item.value, 0);
+
+  // 값이 모두 0이면 균등하게 1로 할당 (단지 보여주기용)
+  const pieData =
+    total === 0
+      ? pieDataRaw.map((item) => ({ ...item, value: 1 }))
+      : pieDataRaw;
+
+  useEffect(() => {
+    if (!notes) return;
+
     const today = new Date();
 
-    const todays = notes?.filter((note: NoteType) =>
+    // 오늘의 노트 추출
+    const todays = notes.filter((note: NoteType) =>
       isSameDay(parseISO(note.createdAt), today)
     );
 
-    setTodaysNotes(todays || []);
+    setTodaysNotes(todays);
+
+    // 이슈노트로 요일별 bar chart 데이터 계산
+    const issueOnly = todays.filter(
+      (note: NoteType) => note.emotion === "이슈"
+    );
     const weekDays = ["월", "화", "수", "목", "금", "토", "일"];
+
     const counts: Record<string, number> = {
       월: 0,
       화: 0,
@@ -73,11 +105,8 @@ const Dashboard = () => {
       일: 0,
     };
 
-    issueNotes?.forEach((note: NoteType) => {
-      const day = format(parseISO(note.createdAt), "eee", {
-        locale: undefined,
-      });
-
+    issueOnly.forEach((note: NoteType) => {
+      const day = format(parseISO(note.createdAt), "eee"); // 요일 계산
       const dayMap: Record<string, string> = {
         Mon: "월",
         Tue: "화",
@@ -99,60 +128,68 @@ const Dashboard = () => {
     }));
 
     setBarData(resultBarData);
-    console.log(resultBarData);
-  }, [issueNotes, notes]);
+  }, [notes]);
 
   // 파이 차트 색상
   const COLORS = ["#CEDEF2", "#A0C4F2", "#6DA7F2"];
   return (
     <div className="pt-5 pb-10">
-      <div className="text-3xl font-bold pt-10 pb-5">이서연의 상태</div>
+      <div className="text-3xl font-bold pt-10 pb-5">
+        {organization?.result[0].notes[0].memberName}의 상태
+      </div>
       <div className="space-y-4 py-5">
         <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
           {/* 시간 별 빈번한 행동/감정 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">
-                시간 별 빈번한 행동/감정
+                시간대 별 빈번한 행동/감정
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Table className="w-full">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[40px]">시간대</TableHead>
-                    <TableHead className="px-6">행동</TableHead>
-                    <TableHead className="px-6">감정</TableHead>
+                  <TableRow className="text-center">
+                    <TableHead className="w-1/6">시간대</TableHead>
+                    <TableHead>행동</TableHead>
+                    <TableHead>카테고리</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">아침</TableCell>
-                    <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
-                      일어날 때 꼭 인형이 옆에 있어야하고 밥을 먹을때 좋아하는
-                      캐릭터 숟가락을 써야해요
-                    </TableCell>
-                    <TableCell className="flex items-center space-x-2 break-keep">
-                      <div>😵‍💫</div>
-                      <div>아침 루틴이 깨지면 불안해해요</div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">점심</TableCell>
-                    <TableCell>동일하게 행동 설명 넣기</TableCell>
-                    <TableCell className="flex items-center space-x-2 break-keep">
-                      <div>😵‍💫</div>
-                      <div>동일하게 감정 설명</div>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-medium">저녁</TableCell>
-                    <TableCell>동일하게 행동 설명 넣기</TableCell>
-                    <TableCell className="flex items-center space-x-2 break-keep">
-                      <div>😵‍💫</div>
-                      <div>동일하게 감정 설명</div>
-                    </TableCell>
-                  </TableRow>
+                  {stateAnalysis && (
+                    <>
+                      <TableRow>
+                        <TableCell className="font-medium">아침</TableCell>
+                        <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
+                          {stateAnalysis.morningBehavior ||
+                            "해당 시간대 행동 없음"}
+                        </TableCell>
+                        <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
+                          {stateAnalysis.morningEmotion || "해당 이슈 없음"}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">점심</TableCell>
+                        <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
+                          {stateAnalysis.afternoonBehavior ||
+                            "해당 시간대 행동 없음"}
+                        </TableCell>
+                        <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
+                          {stateAnalysis.afternoonEmotion || "해당 이슈 없음"}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">저녁</TableCell>
+                        <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
+                          {stateAnalysis.nightBehavior ||
+                            "해당 시간대 행동 없음"}
+                        </TableCell>
+                        <TableCell className="w-1/2 break-keep whitespace-pre-wrap">
+                          {stateAnalysis.nightEmotion || "해당 이슈 없음"}
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -203,7 +240,7 @@ const Dashboard = () => {
           </Card>
         </div>
         {/* 요일 별 이상 횟수 */}
-        <div>
+        <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">요일 별 이상 횟수</CardTitle>
@@ -219,8 +256,42 @@ const Dashboard = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+          {/* 특정 감정일 때 자주 발생한 행동 매칭 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">
+                특정 감정일 때 자주 발생한 행동 매칭
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col space-y-6">
+              <div className="flex items-center space-x-4">
+                <div className="text-6xl">😄</div>
+                <Card className="w-2/3">
+                  <CardContent className="break-keep">
+                    <div>{stateAnalysis?.happyBehaviorMap}</div>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-6xl">😫</div>
+                <Card className="w-2/3">
+                  <CardContent className="break-keep">
+                    <div>{stateAnalysis?.sadBehaviorMap}</div>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-6xl">😵‍💫</div>
+                <Card className="w-2/3">
+                  <CardContent className="break-keep">
+                    <div>{stateAnalysis?.annoyingBehaviorMap}</div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
+        <div>
           {/* 오늘의 감정 흐름 */}
           <Card>
             <CardHeader>
@@ -276,47 +347,6 @@ const Dashboard = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 특정 감정일 때 자주 발생한 행동 매칭 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                특정 감정일 때 자주 발생한 행동 매칭
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col space-y-6">
-              <div className="flex items-center space-x-4">
-                <div className="text-6xl">😄</div>
-                <Card className="w-2/3">
-                  <CardContent className="break-keep">
-                    {happyNotes?.map((similarity: NoteType) => (
-                      <div key={similarity.noteId}>{similarity.content}</div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="text-6xl">😫</div>
-                <Card className="w-2/3">
-                  <CardContent className="break-keep">
-                    {angryNotes?.map((similarity: NoteType) => (
-                      <div key={similarity.noteId}>{similarity.content}</div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="text-6xl">😵‍💫</div>
-                <Card className="w-2/3">
-                  <CardContent className="break-keep">
-                    {anxiousNotes?.map((similarity: NoteType) => (
-                      <div key={similarity.noteId}>{similarity.content}</div>
-                    ))}
-                  </CardContent>
-                </Card>
               </div>
             </CardContent>
           </Card>

@@ -155,7 +155,7 @@ const Note = () => {
       });
 
       toast.success("게시글이 등록되었습니다.");
-      refetch(); // 최신 목록 갱신
+      await refetch();
       setWriteContent(false); // 글쓰기 창 닫기
       setContentTitle("");
       setContentText("");
@@ -187,8 +187,7 @@ const Note = () => {
         content: currentComment,
       });
       toast.success("댓글이 등록되었습니다.");
-      navigate("/community");
-      refetch(); // 노트 목록 새로고침
+      await refetch(); // 노트 목록 새로고침
       // 댓글 초기화
       setCommentMap((prev) => ({ ...prev, [noteId]: "" }));
     } catch {
@@ -206,6 +205,7 @@ const Note = () => {
         content: shareNote.content,
       });
       toast.success("해당 게시글이 커뮤니티에 공유되었습니다.");
+      navigate("/community"); // 커뮤니티 페이지로 이동
       refetch();
     } catch {
       toast.error("커뮤니티 공유 중 오류가 발생했습니다.");
