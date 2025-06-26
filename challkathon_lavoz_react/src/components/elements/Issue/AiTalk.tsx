@@ -1,4 +1,4 @@
-import Face from "@/Assets/face.png";
+import AiFace from "@/Assets/AiFace.png";
 
 const AiTalk = () => {
   return (
@@ -6,7 +6,7 @@ const AiTalk = () => {
       <div
         className="mr-2 text-white self-start bg-black w-[50px] aspect-square rounded-full flex items-center justify-center bg-center bg-cover shadow-lg cursor-pointer z-12"
         style={{
-          backgroundImage: `url(${Face})`,
+          backgroundImage: `url(${AiFace})`,
         }}
       />
 

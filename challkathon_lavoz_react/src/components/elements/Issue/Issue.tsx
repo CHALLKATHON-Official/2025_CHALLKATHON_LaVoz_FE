@@ -1,4 +1,4 @@
-import Face from "@/Assets/face.png";
+import AiFace from "@/Assets/AiFace.png";
 import { useState } from "react";
 import AiTalk from "./AiTalk";
 import MyTalk from "./MyTalk";
@@ -26,7 +26,7 @@ const Issue = () => {
       <div
         className="fixed bottom-5 right-5 text-white bg-black size-20 rounded-full flex items-center justify-center bg-center bg-cover shadow-lg cursor-pointer z-12"
         style={{
-          backgroundImage: `url(${Face})`,
+          backgroundImage: `url(${AiFace})`,
         }}
         onClick={() => setIssue(!issue)}
       />

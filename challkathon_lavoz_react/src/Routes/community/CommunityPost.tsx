@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Card,
@@ -9,55 +9,112 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import Logo from "@/assets/logo.png";
-import {
-  FaRegHeart,
-  FaHeart,
-  FaRegBookmark,
-  FaBookmark,
-  FaRegComment,
-} from "react-icons/fa";
+import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { FaCircleArrowUp } from "react-icons/fa6";
+import { apiClient } from "@/api/client";
+
+interface postInterface {
+  boardId: number;
+  bookmarked: boolean;
+  content: string;
+  createdAt: string;
+  memberId: number;
+  memberName: string;
+  title: string;
+  updatedAt: string;
+  viewCount: number;
+}
+interface commentInterface {
+  boardCommentId: number;
+  content: string;
+  memberId: number;
+  memberName: string;
+  memberRole: string;
+  boardId: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const CommunityPost = () => {
   const { postId } = useParams();
   const [openImage, setOpenImage] = useState<string | null>(null);
-  const [liked, setLiked] = useState<boolean>(false);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
-  const [comment, setComment] = useState<string>("");
+  const [comment, setComment] = useState<commentInterface[]>([]);
+  const [commentWrite, setCommentWrite] = useState("");
+  const [post, setPost] = useState<postInterface>();
+
+  useEffect(() => {
+    const getPost = async () => {
+      await apiClient
+        .get(`/boards/${postId}`)
+        .then((res) => {
+          console.log(res);
+          setPost(res.data.result);
+          setBookmarked(res.data.result.bookmarked);
+        })
+        .catch((err) => console.log(err));
+    };
+
+    const getComment = async () => {
+      await apiClient
+        .get(`/boards/${postId}/comments`)
+        .then((res) => setComment(res.data.result))
+        .catch((err) => console.log(err));
+    };
+
+    getPost();
+    getComment();
+  }, []);
 
   return (
     <div className="py-10">
-      <div className="text-3xl font-bold py-10">#{postId} 글 제목</div>
+      <div className="text-3xl font-bold py-10">{post?.title}</div>
       {/* 게시물 */}
       <Card>
         <CardHeader>
           <CardTitle>
             {/* 프로필, 이름, 작성 시각 */}
-            <div className="flex items-center space-x-4">
-              <Avatar className="cursor-pointer">
+            <div className="flex items-center space-x-4 justify-between">
+              {/* <Avatar className="cursor-pointer">
                 <AvatarImage src="https://github.com/yiseoffline.png" />
                 <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
+              </Avatar> */}
               <div className="space-y-1">
-                <div>Seo Yeon</div>
+                <div>{post?.title}</div>
                 <div className="text-xs font-medium text-gray-500">
-                  06/24 22:35
+                  {post ? new Date(post?.createdAt).toDateString() : null}
                 </div>
+              </div>
+
+              <div
+                onClick={async () => {
+                  await apiClient
+                    .post(`/boards/${postId}/bookmark`)
+                    .then((res) => console.log(res));
+                  setBookmarked(!bookmarked);
+                }}
+              >
+                {bookmarked ? (
+                  <FaBookmark
+                    className="w-6 h-6 cursor-pointer"
+                    onClick={() => setBookmarked(false)}
+                  />
+                ) : (
+                  <FaRegBookmark
+                    className="w-6 h-6 cursor-pointer"
+                    onClick={() => setBookmarked(true)}
+                  />
+                )}
               </div>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* 내용 텍스트 */}
-          <div>
-            글 내용 ~~
-            <br />
-            자고로휘문이란말이지강남8학군노른자땅으로서고교최초노히트노런과퍼펙트게임이나온학교운동장땅값만팔아도니네학교를다사는학교매년서울대를수도없이많이보내고서울대를가고싶은데연고대만붙어서재수생이많은학교야구부가들어온최초의고등학교엔팍돠마산구장총면적을다팔아도휘문고땅에안되는대명문휘문고삼성역사거리오르막길올라가다보며휘문고교사거리가있는데포르쉐매장을끼고우회전을하면거기에대치동이있다그중심엔휘문고등학교가있다
-          </div>
+          <div>{post?.content}</div>
 
           {/* 내용 이미지 */}
-          <div className="flex flex-wrap gap-4">
+          {/* <div className="flex flex-wrap gap-4">
             {[Logo, Logo, Logo].map((src, index) => (
               <img
                 key={index}
@@ -67,7 +124,7 @@ const CommunityPost = () => {
                 onClick={() => setOpenImage(src)}
               />
             ))}
-          </div>
+          </div> */}
 
           {/* 이미지 클릭 시 확대 */}
           {openImage && (
@@ -85,7 +142,7 @@ const CommunityPost = () => {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 items-start">
           <div className="flex items-center space-x-2">
-            {liked ? (
+            {/* {liked ? (
               <FaHeart
                 className="w-6 h-6 text-red-500 cursor-pointer"
                 onClick={() => setLiked(false)}
@@ -95,47 +152,71 @@ const CommunityPost = () => {
                 className="w-6 h-6 text-red-500 cursor-pointer"
                 onClick={() => setLiked(true)}
               />
-            )}
-            <FaRegComment className="w-6 h-6 text-cyan-500 cursor-pointer" />
-            {bookmarked ? (
-              <FaBookmark
-                className="w-6 h-6 text-yellow-500 cursor-pointer"
-                onClick={() => setBookmarked(false)}
-              />
-            ) : (
-              <FaRegBookmark
-                className="w-6 h-6 text-yellow-500 cursor-pointer"
-                onClick={() => setBookmarked(true)}
-              />
-            )}
+            )} */}
+            {/* <FaRegComment className="w-6 h-6 text-cyan-500 cursor-pointer" /> */}
           </div>
           {/* 댓글 */}
           <div className="w-full">
-            <div className="flex space-x-3 py-6">
-              <Avatar className="cursor-pointer">
+            <div className="flex space-x-3 py-6 flex-col gap-5">
+              {/* <Avatar className="cursor-pointer">
                 <AvatarImage src="https://github.com/yunchan312.png" />
-              </Avatar>
-              <div>
-                <div className="flex items-center space-x-2 mb-1">
-                  <span className="font-semibold text-sm">Yun Chan</span>
-                  <span className="text-xs text-gray-400">5분 전</span>
-                </div>
-                <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
-                  hi
-                </div>
-              </div>
+              </Avatar> */}
+              {comment.length > 0
+                ? comment.map((c) => (
+                    <div key={c.createdAt}>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-semibold text-sm">
+                          {c.memberName}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {Math.ceil(
+                            (new Date().getTime() -
+                              new Date(c.createdAt).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          ) <= 1
+                            ? Math.floor(
+                                (new Date().getTime() -
+                                  new Date(c.createdAt).getTime()) /
+                                  (1000 * 60)
+                              ) + "분 전"
+                            : Math.floor(
+                                (new Date().getTime() -
+                                  new Date(c.createdAt).getTime()) /
+                                  (1000 * 60 * 60 * 24)
+                              ) + "일 전"}
+                        </span>
+                      </div>
+                      <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-800 max-w-xs">
+                        {c.content}
+                      </div>
+                    </div>
+                  ))
+                : null}
             </div>
             {/* 댓글 작성 부분 */}
             <div className="flex items-center space-x-3">
-              <Avatar className="cursor-pointer">
+              {/* <Avatar className="cursor-pointer">
                 <AvatarImage src="https://github.com/yiseoffline.png" />
                 <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
+              </Avatar> */}
               <Textarea
-                onChange={(e) => setComment(e.target.value)}
+                onChange={(e) => setCommentWrite(e.target.value)}
                 className="w-full"
               />
-              <FaCircleArrowUp className="w-7 h-7 cursor-pointer" />
+              <FaCircleArrowUp
+                onClick={async () => {
+                  await apiClient
+                    .post(`/boards/${postId}/comments`, {
+                      content: commentWrite,
+                    })
+                    .then((res) => {
+                      console.log(res);
+                      window.location.reload();
+                    })
+                    .catch((err) => console.log(err));
+                }}
+                className="w-7 h-7 cursor-pointer"
+              />
             </div>
           </div>
         </CardFooter>
