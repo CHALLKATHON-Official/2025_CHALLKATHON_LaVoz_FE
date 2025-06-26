@@ -5,7 +5,6 @@ import Community from "./Routes/community/Community";
 import CommunityPost from "./Routes/community/CommunityPost";
 import Dashboard from "./Routes/Dashboard";
 import Note from "./Routes/Note";
-import Wiki from "./Routes/Wiki";
 import Login from "./Routes/Login";
 import Signup from "./Routes/Signup";
 import MyPage from "./Routes/MyPage";
@@ -27,7 +26,6 @@ function App() {
           ],
         },
         { element: <Dashboard />, path: "/dashboard" },
-        { element: <Wiki />, path: "/wiki" },
         { element: <MyPage />, path: "/mypage" },
       ],
     },
