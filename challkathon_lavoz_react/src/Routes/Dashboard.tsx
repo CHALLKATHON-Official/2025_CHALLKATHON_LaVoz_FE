@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { isSameDay, parseISO, format } from "date-fns";
-import toast from "react-hot-toast";
 
 import {
   Card,
@@ -31,6 +30,7 @@ import {
 import type { Note as NoteType } from "@/types/note";
 import type { ChatGptStatusDto } from "@/types/organization";
 
+import { useMemberInfo } from "@/api/member.api";
 import { useAllNotes } from "@/api/note.api";
 import { useOrganization, useStateAnalysis } from "@/api/organization.api";
 
@@ -41,24 +41,30 @@ const Dashboard = () => {
     null
   );
 
+  const { data: memberInfo } = useMemberInfo();
   const { data: organization } = useOrganization();
   const organizationId = organization?.result[0].organizationId;
-  const { mutate: analyzeState } = useStateAnalysis();
+  const { mutateAsync: analyzeState } = useStateAnalysis();
   const { data: notes } = useAllNotes(organizationId);
 
   useEffect(() => {
-    if (organizationId) {
-      analyzeState(organizationId.toString(), {
-        onSuccess: (result) => {
-          setStateAnalysis(result.chatGptStatusDto);
-        },
-        onError: () => {
-          toast.error("상태 분석 실패:");
-        },
-      });
-    }
+    const fetchStateAnalysis = async () => {
+      if (!organizationId) return;
+      try {
+        const result = await analyzeState(organizationId.toString());
+        setStateAnalysis(result.chatGptStatusDto);
+      } catch {
+        // 실패했을 경우 아무 처리 안 함
+      }
+    };
+
+    fetchStateAnalysis();
   }, [organizationId, analyzeState]);
 
+  // 파이 차트 색상
+  const COLORS = ["#CEDEF2", "#A0C4F2", "#6DA7F2"];
+
+  // 파이 차트 데이터
   const pieDataRaw = [
     { name: "시각", value: stateAnalysis?.sightSensitivity || 0 },
     { name: "청각", value: stateAnalysis?.hearingSensitivity || 0 },
@@ -130,12 +136,10 @@ const Dashboard = () => {
     setBarData(resultBarData);
   }, [notes]);
 
-  // 파이 차트 색상
-  const COLORS = ["#CEDEF2", "#A0C4F2", "#6DA7F2"];
   return (
     <div className="pt-5 pb-10">
       <div className="text-3xl font-bold pt-10 pb-5">
-        {organization?.result[0].notes[0].memberName}의 상태
+        {memberInfo?.memberName}의 상태
       </div>
       <div className="space-y-4 py-5">
         <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
