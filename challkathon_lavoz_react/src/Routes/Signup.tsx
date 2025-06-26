@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Logo from "@/assets/logo.png";
+import Logo from "@/Assets/logo.png";
 import { Select } from "@/components/ui/select";
 import {
   SelectContent,

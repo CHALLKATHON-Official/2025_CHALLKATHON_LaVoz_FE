@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import Logo from "@/assets/logo.png";
+import Logo from "@/Assets/logo.png";
 import useAuth from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 
