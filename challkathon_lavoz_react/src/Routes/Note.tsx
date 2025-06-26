@@ -43,7 +43,7 @@ import {
 import { FaCircleArrowUp } from "react-icons/fa6";
 import { BiFilterAlt } from "react-icons/bi";
 import { GrAttachment } from "react-icons/gr";
-import Face from "@/Assets/Face.png";
+import Face from "@/Assets/face.png";
 import toast from "react-hot-toast";
 
 import { useCreateNote, useAllNotes } from "@/api/note.api";
