@@ -141,20 +141,28 @@ const Note = () => {
     }
 
     try {
-      await createNote({
-        organizationId,
-        title: contentTitle,
-        content: contentText,
-        emotion: contentEmotion,
-        time: formatted,
-      });
-
-      toast.success("게시글이 등록되었습니다.");
-      refetch(); // 최신 목록 갱신
-      setWriteContent(false); // 글쓰기 창 닫기
-      setContentTitle("");
-      setContentText("");
-      setContentEmotion("");
+      createNote(
+        {
+          organizationId,
+          title: contentTitle,
+          content: contentText,
+          emotion: contentEmotion,
+          time: formatted,
+        },
+        {
+          onSuccess: () => {
+            toast.success("게시글이 등록되었습니다.");
+            refetch();
+            setWriteContent(false);
+            setContentTitle("");
+            setContentText("");
+            setContentEmotion("");
+          },
+          onError: () => {
+            toast.error("게시글 등록 중 오류가 발생했습니다.");
+          },
+        }
+      );
     } catch (error) {
       console.error("게시글 등록 오류:", error);
       toast.error("게시글 등록 중 오류가 발생했습니다.");
@@ -177,14 +185,20 @@ const Note = () => {
     }
 
     try {
-      await postComment({
-        noteId,
-        content: currentComment,
-      });
-      toast.success("댓글이 등록되었습니다.");
-      refetch(); // 노트 목록 새로고침
-      // 댓글 초기화
-      setCommentMap((prev) => ({ ...prev, [noteId]: "" }));
+      postComment(
+        {
+          noteId,
+          content: currentComment,
+        },
+        {
+          onSuccess: () => {
+            toast.success("댓글이 등록되었습니다.");
+            refetch(); // 노트 목록 새로고침
+            // 댓글 초기화
+            setCommentMap((prev) => ({ ...prev, [noteId]: "" }));
+          },
+        }
+      );
     } catch {
       toast.error("댓글 등록 중 오류가 발생했습니다.");
     }
@@ -195,12 +209,12 @@ const Note = () => {
     if (!shareNote) return;
 
     try {
-      await postBoard({
+      postBoard({
         title: shareNote.title,
         content: shareNote.content,
       });
       toast.success("해당 게시글이 커뮤니티에 공유되었습니다.");
-      refetch();
+      await refetch();
     } catch {
       toast.error("커뮤니티 공유 중 오류가 발생했습니다.");
     } finally {
