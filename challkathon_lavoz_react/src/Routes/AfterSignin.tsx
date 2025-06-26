@@ -1,6 +1,5 @@
 import { apiClient } from "@/api/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Drawer,
   DrawerContent,
@@ -51,12 +50,13 @@ interface noteInterface {
 interface organizationInterface {
   organizationId: number;
   name: string;
+  inviteCode: string;
   notes?: noteInterface[];
 }
 
 const AfterSignin = () => {
   const [newOrgaName, setNewOrgaName] = useState("");
-  const [invitaion, setInvitation] = useState("");
+  const [invitation, setInvitation] = useState("");
   const [orgas, setOrgas] = useState<organizationInterface[]>([]);
   const navigate = useNavigate();
   const onCreate = async () => {
@@ -85,7 +85,7 @@ const AfterSignin = () => {
     getOrga();
   }, []);
   return (
-    <div className="px-8 py-10">
+    <div className="px-8 py-10 w-full max-w-[900px] mx-auto">
       <div className="font-bold">접속할 오가니제이션을 선택해주세요</div>
 
       <div className="pt-5 flex justify-end gap-3">
@@ -119,7 +119,21 @@ const AfterSignin = () => {
             </DrawerHeader>
             <div className="h-[40vh] w-full max-w-[900px] mx-auto mt-10 px-10">
               <Input onChange={(e) => setInvitation(e.target.value)} />
-              <Button className="w-full mt-2">제출하기</Button>
+              <Button
+                className="w-full mt-2"
+                onClick={async () => {
+                  await apiClient
+                    .post("/organization/join", {
+                      inviteCode: invitation,
+                    })
+                    .then(() => {
+                      window.location.reload();
+                    })
+                    .catch((err) => console.log(err));
+                }}
+              >
+                제출하기
+              </Button>
             </div>
           </DrawerContent>
         </Drawer>
@@ -130,6 +144,7 @@ const AfterSignin = () => {
           <TableHeader>
             <TableRow>
               <TableHead>아이디</TableHead>
+              <TableHead>초대코드</TableHead>
               <TableHead>오가니제이션 이름</TableHead>
               <TableHead>접속</TableHead>
               <TableHead>삭제</TableHead>
@@ -140,6 +155,7 @@ const AfterSignin = () => {
             {orgas.map((orga) => (
               <TableRow key={orga.organizationId}>
                 <TableCell>{orga.organizationId}</TableCell>
+                <TableCell>{orga.inviteCode}</TableCell>
                 <TableCell>{orga.name}</TableCell>
                 <TableCell>
                   <Button
@@ -164,7 +180,6 @@ const AfterSignin = () => {
                         localStorage.removeItem("currentOrganizationId");
                         await apiClient
                           .delete(`/organization/${orga.organizationId}`)
-                          .then((res) => console.log(res))
                           .catch((err) => console.log(err));
                       }
                       window.location.reload();

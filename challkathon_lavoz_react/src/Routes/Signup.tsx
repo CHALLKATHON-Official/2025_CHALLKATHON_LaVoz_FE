@@ -84,6 +84,14 @@ const Signup = () => {
               <Input
                 {...register("loginId", {
                   required: { value: true, message: "이 영역은 필수입니다." },
+                  minLength: {
+                    value: 4,
+                    message: "비밀번호는 4-20자 사이어야 합니다.",
+                  },
+                  maxLength: {
+                    value: 20,
+                    message: "비밀번호는 4-20자 사이어야 합니다.",
+                  },
                 })}
               />
               {errors.loginId ? (
