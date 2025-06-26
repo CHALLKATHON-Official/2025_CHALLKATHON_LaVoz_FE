@@ -75,9 +75,8 @@ const MyPage = () => {
   const [modal, setModal] = useState(false);
   const [bookmarks, setBookmarks] = useState<boardInterface[]>([]);
   const [user, setUser] = useState<userInterface>();
-  const { control, register, handleSubmit, setValue } =
-    useForm<userInterface>();
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const { control, register, handleSubmit } = useForm<userInterface>();
+  const date = new Date();
 
   const onUserChange = async (data: userInterface) => {
     await apiClient
@@ -91,6 +90,7 @@ const MyPage = () => {
       })
       .then((res) => alert(res.data.message))
       .catch((err) => console.log(err));
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -104,7 +104,7 @@ const MyPage = () => {
     };
 
     getUser();
-  }, [user, onUserChange]);
+  }, []);
 
   useEffect(() => {
     const getBookmarks = async () => {
@@ -182,7 +182,9 @@ const MyPage = () => {
           </div>
         </div>
       ) : null}
-      <div className="text-3xl font-bold py-10">마이페이지</div>
+      <div className="text-3xl font-bold py-10 max-w-[900px] mx-auto">
+        마이페이지
+      </div>
       <div className="border-2 shadow-sm rounded-xl flex md:flex-row flex-col items-center py-5 max-w-[900px] mx-auto justify-center gap-2 mb-5">
         <div className="font-bold text-5xl">{user?.memberName}</div>
         <div className="flex gap-3">
@@ -212,11 +214,13 @@ const MyPage = () => {
         </Card>
       </div>
 
-      <div>
+      <div className="w-full max-w-[900px] mx-auto">
         <div className="flex items-center gap-5">
           <div className="font-bold text-2xl">오가니제이션 대상자 정보</div>
           {user?.childName ? (
-            <Button>{user?.childName}님의 대시보드 보러 가기</Button>
+            <Button onClick={() => navigate("/dashboard")}>
+              {user?.childName}님의 대시보드 보러 가기
+            </Button>
           ) : null}
           <Drawer>
             <DrawerTrigger asChild>
