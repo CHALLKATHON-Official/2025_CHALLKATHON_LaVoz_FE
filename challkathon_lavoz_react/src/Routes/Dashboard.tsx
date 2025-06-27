@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { parseISO, format } from "date-fns";
+import { isSameDay, parseISO, format } from "date-fns";
 
 import {
   Card,
@@ -31,7 +31,7 @@ import type { Note as NoteType } from "@/types/note";
 import type { ChatGptStatusDto } from "@/types/organization";
 
 import { useMemberInfo } from "@/api/member.api";
-
+import { useAllNotes } from "@/api/note.api";
 import { useOrganization, useStateAnalysis } from "@/api/organization.api";
 
 const Dashboard = () => {
@@ -44,6 +44,18 @@ const Dashboard = () => {
   const { data: organization } = useOrganization();
   const organizationId = organization?.result[0].organizationId;
   const { mutateAsync: analyzeState } = useStateAnalysis();
+  const { data: notes } = useAllNotes(organizationId);
+
+  // 기존 useState 밑에 이 코드를 넣으세요.
+  const barData = [
+    { day: "월", count: 3 },
+    { day: "화", count: 2 },
+    { day: "수", count: 1 },
+    { day: "목", count: 7 },
+    { day: "금", count: 2 },
+    { day: "토", count: 3 },
+    { day: "일", count: 1 },
+  ];
 
   useEffect(() => {
     const fetchStateAnalysis = async () => {
@@ -81,16 +93,18 @@ const Dashboard = () => {
       ? pieDataRaw.map((item) => ({ ...item, value: 1 }))
       : pieDataRaw;
 
-  // 기존 useState 밑에 이 코드를 넣으세요.
-  const barData = [
-    { day: "월", count: 3 },
-    { day: "화", count: 2 },
-    { day: "수", count: 1 },
-    { day: "목", count: 7 },
-    { day: "금", count: 2 },
-    { day: "토", count: 3 },
-    { day: "일", count: 1 },
-  ];
+  useEffect(() => {
+    if (!notes) return;
+
+    const today = new Date();
+
+    // 오늘의 노트 추출
+    const todays = notes.filter((note: NoteType) =>
+      isSameDay(parseISO(note.createdAt), today)
+    );
+
+    setTodaysNotes(todays);
+  }, [notes]);
 
   return (
     <div className="pt-5 pb-10">
