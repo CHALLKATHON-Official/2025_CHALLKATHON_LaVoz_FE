@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { isSameDay, parseISO, format } from "date-fns";
+import { parseISO, format } from "date-fns";
 
 import {
   Card,
@@ -31,12 +31,11 @@ import type { Note as NoteType } from "@/types/note";
 import type { ChatGptStatusDto } from "@/types/organization";
 
 import { useMemberInfo } from "@/api/member.api";
-import { useAllNotes } from "@/api/note.api";
+
 import { useOrganization, useStateAnalysis } from "@/api/organization.api";
 
 const Dashboard = () => {
   const [todaysNotes, setTodaysNotes] = useState<NoteType[]>([]);
-  const [barData, setBarData] = useState<{ day: string; count: number }[]>([]);
   const [stateAnalysis, setStateAnalysis] = useState<ChatGptStatusDto | null>(
     null
   );
@@ -45,7 +44,6 @@ const Dashboard = () => {
   const { data: organization } = useOrganization();
   const organizationId = organization?.result[0].organizationId;
   const { mutateAsync: analyzeState } = useStateAnalysis();
-  const { data: notes } = useAllNotes(organizationId);
 
   useEffect(() => {
     const fetchStateAnalysis = async () => {
@@ -83,58 +81,16 @@ const Dashboard = () => {
       ? pieDataRaw.map((item) => ({ ...item, value: 1 }))
       : pieDataRaw;
 
-  useEffect(() => {
-    if (!notes) return;
-
-    const today = new Date();
-
-    // 오늘의 노트 추출
-    const todays = notes.filter((note: NoteType) =>
-      isSameDay(parseISO(note.createdAt), today)
-    );
-
-    setTodaysNotes(todays);
-
-    // 이슈노트로 요일별 bar chart 데이터 계산
-    const issueOnly = todays.filter(
-      (note: NoteType) => note.emotion === "이슈"
-    );
-    const weekDays = ["월", "화", "수", "목", "금", "토", "일"];
-
-    const counts: Record<string, number> = {
-      월: 0,
-      화: 0,
-      수: 0,
-      목: 0,
-      금: 0,
-      토: 0,
-      일: 0,
-    };
-
-    issueOnly.forEach((note: NoteType) => {
-      const day = format(parseISO(note.createdAt), "eee"); // 요일 계산
-      const dayMap: Record<string, string> = {
-        Mon: "월",
-        Tue: "화",
-        Wed: "수",
-        Thu: "목",
-        Fri: "금",
-        Sat: "토",
-        Sun: "일",
-      };
-      const koreanDay = dayMap[day];
-      if (koreanDay) {
-        counts[koreanDay]++;
-      }
-    });
-
-    const resultBarData = weekDays.map((day) => ({
-      day,
-      count: counts[day],
-    }));
-
-    setBarData(resultBarData);
-  }, [notes]);
+  // 기존 useState 밑에 이 코드를 넣으세요.
+  const barData = [
+    { day: "월", count: 3 },
+    { day: "화", count: 2 },
+    { day: "수", count: 1 },
+    { day: "목", count: 7 },
+    { day: "금", count: 2 },
+    { day: "토", count: 3 },
+    { day: "일", count: 1 },
+  ];
 
   return (
     <div className="pt-5 pb-10">
